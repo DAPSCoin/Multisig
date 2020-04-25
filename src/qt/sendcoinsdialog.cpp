@@ -19,9 +19,9 @@
 
 #include "base58.h"
 #include "coincontrol.h"
-#include "ui_interface.h"
+#include "guiinterface.h"
 #include "utilmoneystr.h"
-#include "wallet.h"
+#include "wallet/wallet.h"
 #include "2faconfirmdialog.h"
 #include "timedata.h"
 
@@ -32,7 +32,6 @@
 #include <QTextDocument>
 #include <QDateTime>
 #include <QDebug>
-#include <QClipboard>
 
 
 SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
@@ -46,22 +45,12 @@ SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent, Qt::WindowSy
 
     addEntry();
 
-    //connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
-    connect(ui->copyButton, SIGNAL(clicked()), this, SLOT(on_copyButton_Clicked()));
-    // #HIDE multisend
-    ui->addButton->setVisible(false);
-
-    ui->copyButton->setStyleSheet("background:transparent;");
-    ui->copyButton->setIcon(QIcon(":/icons/editcopy"));
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
     // Coin Control
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString&)), this, SLOT(coinControlChangeEdited(const QString&)));
-    ui->pushButtonCoinControl->setVisible(false);
-    ui->checkBoxCoinControlChange->setVisible(false);
-    ui->lineEditCoinControlChange->setVisible(false);
 
     // Coin Control: clipboard actions
     QAction* clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -89,15 +78,6 @@ SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent, Qt::WindowSy
     ui->labelCoinControlLowOutput->addAction(clipboardLowOutputAction);
     ui->labelCoinControlChange->addAction(clipboardChangeAction);
 
-    ui->labelCoinControlQuantity->setVisible(false);
-    ui->labelCoinControlAmount->setVisible(false);
-    ui->labelCoinControlFee->setVisible(false);
-    ui->labelCoinControlAfterFee->setVisible(false);
-    ui->labelCoinControlBytes->setVisible(false);
-    ui->labelCoinControlPriority->setVisible(false);
-    ui->labelCoinControlLowOutput->setVisible(false);
-    ui->labelCoinControlChange->setVisible(false);
-
     // #HIDE multisend / unused items
     ui->addButton->setVisible(false);
     ui->checkBoxCoinControlChange->setVisible(false);
@@ -108,37 +88,8 @@ SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent, Qt::WindowSy
     ui->labelBlockSizeText->setVisible(false);
     ui->labelCoinControlInsuffFunds->setVisible(false);
 
-    ui->labelCoinControlFeatures->setVisible(false);
-    ui->pushButtonCoinControl->setVisible(false);
-    ui->labelCoinControlAutomaticallySelected->setVisible(false);
-    ui->labelCoinControlInsuffFunds->setVisible(false);
-
-    ui->labelCoinControlQuantityText->setVisible(false);
-    ui->labelCoinControlQuantity->setVisible(false);
-    ui->labelCoinControlBytesText->setVisible(false);
-    ui->labelCoinControlBytes->setVisible(false);
-
-    ui->labelCoinControlAmountText->setVisible(false);
-    ui->labelCoinControlPriorityText->setVisible(false);
-    ui->labelCoinControlAmount->setVisible(false);
-    ui->labelCoinControlPriority->setVisible(false);
-
-    ui->labelCoinControlFeeText->setVisible(false);
-    ui->labelCoinControlLowOutputText->setVisible(false);
-    ui->labelCoinControlFee->setVisible(false);
-    ui->labelCoinControlLowOutput->setVisible(false);
-
-    ui->labelCoinControlAfterFeeText->setVisible(false);
-    ui->labelCoinControlChangeText->setVisible(false);
-    ui->labelCoinControlAfterFee->setVisible(false);
-    ui->labelCoinControlChange->setVisible(false);
-
-    ui->checkBoxCoinControlChange->setVisible(false);
-    ui->lineEditCoinControlChange->setVisible(false);
-    ui->splitBlockCheckBox->setVisible(false);
-    ui->splitBlockLineEdit->setVisible(false);
-    ui->labelBlockSizeText->setVisible(false);    
-    ui->labelBlockSize->setVisible(false);    
+    // hide coin control frame
+    ui->frameCoinControl->hide();
 }
 
 void SendCoinsDialog::setClientModel(ClientModel* clientModel)
@@ -164,12 +115,6 @@ void SendCoinsDialog::setModel(WalletModel* model)
         connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this,
             SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
     }
-}
-
-void SendCoinsDialog::on_copyButton_Clicked() 
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(ui->hexCode->toPlainText());
 }
 
 void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, 
@@ -222,17 +167,76 @@ void SendCoinsDialog::on_sendButton_clicked(){
         return;
     }
 
-    QMessageBox::StandardButton reply;
-    if (!pwalletMain->HasPendingTx()) {
-        reply = QMessageBox::question(this, "Are You Sure?", "Are you sure you would like to send this transaction?", QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-        } else {
+    // request unlock only if was locked or unlocked for mixing:
+    // this way we let users unlock by walletpassphrase or by menu
+    // and make many transactions while unlocking through this dialog
+    // will call relock
+    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
+        WalletModel::UnlockContext ctx(model->requestUnlock(AskPassphraseDialog::Context::Send, true));
+        if (!ctx.isValid()) {
+            // Unlock wallet was cancelled
             return;
         }
-    } else {
-        reply = QMessageBox::question(this, "Are You Sure?", "You have a pending transaction that needs to be processed before making another transaction, would like cancel the pending transaction and make another one?", QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-        } else {
+    }
+
+    // Format confirmation message
+    QStringList formatted;
+    formatted.append("<center>");
+    QString amount = "<b>" + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), recipient.amount)+"</b>";
+
+    QString recipientElement;
+    recipientElement.append("<span class='h1 b'>"+amount+"</span><br/>");
+    recipientElement.append("<br/>to<br/>");
+    //if (rcp.label.length() > 0)
+            //recipientElement.append("<br/><span class='h3'>"+tr("Description")+": <br/><b>"+GUIUtil::HtmlEscape(rcp.label)+"</b></span>");
+    recipientElement.append("<br/><span class='h3'>"+tr("Destination")+": <br/><b>"+recipient.address+"</b></span><br/>");
+
+    formatted.append(recipientElement);
+    QString strFee = BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), (pwalletMain->ComputeFee(1, 1, MAX_RING_SIZE)));
+    QString questionString = "<br/><span class='h2'><center><b>"+tr("Are you sure you want to send?")+"</b></center></span>";
+    questionString.append("%1");
+    questionString.append("<br/><span class='h3'>"+tr("Estimated Transaction fee")+": <br/><b>");
+    questionString.append(strFee+"</b></span>");
+    questionString.append("<br/><br/>");
+
+    CAmount txFee = pwalletMain->ComputeFee(1, 1, MAX_RING_SIZE);
+    CAmount totalAmount = send_amount + txFee;
+
+    // Show total amount + all alternative units
+    questionString.append(tr("<span class='h3'>Total Amount = <b>%1</b><br/><hr /></center>")
+                              .arg(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
+
+    // Display message box
+    QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm Send Coins"),
+        questionString.arg(formatted.join("<br />")),
+        QMessageBox::Yes | QMessageBox::Cancel,
+        QMessageBox::Cancel);
+
+    if (retval != QMessageBox::Yes) {
+        return;
+    }
+
+    bool nStaking = (nLastCoinStakeSearchInterval > 0);
+
+    if (nStaking) {
+        CAmount spendable = pwalletMain->GetSpendableBalance();
+        if (!(recipient.amount <= nReserveBalance && recipient.amount <= spendable)) {
+            if (recipient.amount > spendable) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Insufficient Spendable Funds!");
+                msgBox.setText("Insufficient spendable funds. Send with smaller amount or wait for your coins become mature");
+                msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
+                msgBox.setIcon(QMessageBox::Information);
+                msgBox.exec();
+            } else if (recipient.amount > nReserveBalance) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Insufficient Reserve Funds!");
+                msgBox.setText("Insufficient reserve funds. Send with smaller amount or turn off staking mode.");
+                msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
+                msgBox.setIcon(QMessageBox::Information);
+                msgBox.exec();
+            }
             return;
         }
     }
@@ -257,67 +261,93 @@ void SendCoinsDialog::on_sendButton_clicked(){
     }
 }
 
-CPartialTransaction SendCoinsDialog::sendTx() {
-    CWalletTx resultTx; 
-    CPartialTransaction ptx;
+void SendCoinsDialog::sendTx() {
+    CWalletTx resultTx;
     bool success = false;
     try {
-        success = pwalletMain->SendToStealthAddress(ptx,
+        success = pwalletMain->SendToStealthAddress(
             send_address.toStdString(),
             send_amount,
             resultTx,
             false
         );
     } catch (const std::exception& err) {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Transaction Creation Error");
-        msgBox.setText(QString(err.what()));
-        msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.exec();
-        return ptx;
+        std::string errMes(err.what());
+        if (errMes.find("You have attempted to send more than 50 UTXOs in a single transaction") != std::string::npos) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Transaction Size Too Large", QString(err.what()) + QString("\n Do you want to combine small UTXOs into a larger one?"), QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes) {
+                CAmount backupReserve = nReserveBalance;
+                try {
+                    uint32_t nTime = GetAdjustedTime();
+                    nReserveBalance = 0;
+                    success = model->getCWallet()->CreateSweepingTransaction(
+                                    send_amount,
+                                    send_amount, nTime);
+                    nReserveBalance = backupReserve;
+                    if (success) {
+                        QString msg = "Consolidation transaction created!";
+                        QMessageBox msgBox;
+                        msgBox.setWindowTitle("Information");
+                        msgBox.setIcon(QMessageBox::Information);
+                        msgBox.setText(msg);
+                        msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
+                        msgBox.exec();
+                    }
+                } catch (const std::exception& err1) {
+                    nReserveBalance = backupReserve;
+                    QMessageBox msgBox;
+                    LogPrintf("ERROR:%s: %s\n", __func__, err1.what());
+                    msgBox.setWindowTitle("Sweeping Transaction Creation Error");
+                    msgBox.setText(QString("Sweeping transaction failed due to an internal error! Please try again later!"));
+                    msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
+                    msgBox.setIcon(QMessageBox::Critical);
+                    msgBox.exec();
+                }
+                return;
+            } else {
+                return;
+            }
+        } else {
+            QString msg = err.what();
+            if (msg == "") {
+                msg = "Unable to create transaction. Please try again later.";
+            }
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Transaction Creation Error");
+            msgBox.setText(msg);
+            msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+        return;
     }
 
     if (success){
-        CDataStream ssData(SER_NETWORK, PROTOCOL_VERSION);
-        ssData << ptx;
-        std::string hex = HexStr(ssData.begin(), ssData.end());
-        ui->hexCode->setText(QString::fromStdString(hex));
-        CWalletDB(pwalletMain->strWalletFile).WritePendingForSigningTx(ptx);
-        CWalletDB(pwalletMain->strWalletFile).WriteHasWaitingTx(true);
-
+        WalletUtil::getTx(pwalletMain, resultTx.GetHash());
+        QString txhash = resultTx.GetHash().GetHex().c_str();
         QMessageBox msgBox;
+        QPushButton *copyButton = msgBox.addButton(tr("Copy"), QMessageBox::ActionRole);
+        QPushButton *okButton = msgBox.addButton(tr("OK"), QMessageBox::ActionRole);
+        copyButton->setStyleSheet("background:transparent;");
+        copyButton->setIcon(QIcon(":/icons/editcopy"));
         msgBox.setWindowTitle("Transaction Initialized");
-        msgBox.setText("Multisignature transaction initialized. You must copy the following hex code and send it to your co-signers to synchronize transaction metadata and finish the transaction.\n\n");
+        msgBox.setText("Transaction initialized.\n\n" + txhash);
         msgBox.setStyleSheet(GUIUtil::loadStyleSheet());
         msgBox.setIcon(QMessageBox::Information);
         msgBox.exec();
+
+        if (msgBox.clickedButton() == copyButton) {
+        //Copy txhash to clipboard
+        GUIUtil::setClipboard(txhash);
+        }
     }
-    return ptx;
 }
 
 void SendCoinsDialog::dialogIsFinished(int result) {
    if(result == QDialog::Accepted){
         sendTx();
    }
-}
-
-void SendCoinsDialog::FillExistingTxHexCode() {
-    if (pwalletMain) {
-        if (pwalletMain->HasPendingTx()) {
-            ui->label_2->setText("Hex code of an existing transaction to be co-signed");
-            CPartialTransaction ptx;
-            CWalletDB(pwalletMain->strWalletFile).ReadPendingForSigningTx(ptx);
-            CDataStream ssData(SER_NETWORK, PROTOCOL_VERSION);
-            ssData << ptx;
-            std::string hex = HexStr(ssData.begin(), ssData.end());
-            ui->hexCode->setText(QString::fromStdString(hex));
-        } else {
-            ui->hexCode->setText("");
-            ui->sendButton->setEnabled(true);
-            ui->label_2->setText("Hex code generated for the transaction");
-        }
-    }
 }
 
 SendCoinsEntry* SendCoinsDialog::addEntry()

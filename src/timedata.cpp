@@ -6,13 +6,13 @@
 
 #include "netbase.h"
 #include "sync.h"
-#include "ui_interface.h"
+#include "guiinterface.h"
 #include "util.h"
 #include "utilstrencodings.h"
 
 using namespace std;
 
-static CCriticalSection cs_nTimeOffset;
+static RecursiveMutex cs_nTimeOffset;
 static int64_t nTimeOffset = 0;
 
 /**

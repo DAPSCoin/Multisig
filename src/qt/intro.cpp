@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -44,10 +44,10 @@ public:
         ST_ERROR
     };
 
-public slots:
+public Q_SLOTS:
     void check();
 
-signals:
+Q_SIGNALS:
     void reply(int status, const QString& message, quint64 available);
 
 private:
@@ -95,12 +95,12 @@ void FreespaceChecker::check()
                 replyMessage = tr("Path already exists, and is not a directory.");
             }
         }
-    } catch (fs::filesystem_error& e) {
+    } catch (const fs::filesystem_error& e) {
         /* Parent directory does not exist or is not accessible */
         replyStatus = ST_ERROR;
         replyMessage = tr("Cannot create data directory here.");
     }
-    emit reply(replyStatus, replyMessage, freeBytesAvailable);
+    Q_EMIT reply(replyStatus, replyMessage, freeBytesAvailable);
 }
 
 
@@ -118,7 +118,7 @@ Intro::~Intro()
 {
     delete ui;
     /* Ensure thread is finished before it is deleted */
-    emit stopThread();
+    Q_EMIT stopThread();
     thread->wait();
 }
 
@@ -174,7 +174,7 @@ bool Intro::pickDataDirectory()
             try {
                 TryCreateDirectory(GUIUtil::qstringToBoostPath(dataDir));
                 break;
-            } catch (fs::filesystem_error& e) {
+            } catch (const fs::filesystem_error& e) {
                 QMessageBox::critical(0, tr("DAPS"),
                     tr("Error: Specified data directory \"%1\" cannot be created.").arg(dataDir));
                 /* fall through, back to choosing screen */
@@ -267,7 +267,7 @@ void Intro::checkPath(const QString& dataDir)
     pathToCheck = dataDir;
     if (!signalled) {
         signalled = true;
-        emit requestCheck();
+        Q_EMIT requestCheck();
     }
     mutex.unlock();
 }

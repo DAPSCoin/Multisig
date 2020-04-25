@@ -22,7 +22,7 @@ public:
     CBaseMainParams()
     {
         networkID = CBaseChainParams::MAIN;
-        nRPCPort = 53578; //RPC port for multisig wallet
+        nRPCPort = 53573;
     }
 };
 static CBaseMainParams mainParams;
@@ -36,7 +36,7 @@ public:
     CBaseTestNetParams()
     {
         networkID = CBaseChainParams::TESTNET;
-        nRPCPort = 53579;
+        nRPCPort = 53575;
         strDataDir = "testnet4";
     }
 };
@@ -55,20 +55,6 @@ public:
     }
 };
 static CBaseRegTestParams regTestParams;
-
-/*
- * Unit test
- */
-class CBaseUnitTestParams : public CBaseMainParams
-{
-public:
-    CBaseUnitTestParams()
-    {
-        networkID = CBaseChainParams::UNITTEST;
-        strDataDir = "unittest";
-    }
-};
-static CBaseUnitTestParams unitTestParams;
 
 static CBaseChainParams* pCurrentBaseParams = 0;
 
@@ -89,9 +75,6 @@ void SelectBaseParams(CBaseChainParams::Network network)
         break;
     case CBaseChainParams::REGTEST:
         pCurrentBaseParams = &regTestParams;
-        break;
-    case CBaseChainParams::UNITTEST:
-        pCurrentBaseParams = &unitTestParams;
         break;
     default:
         assert(false && "Unimplemented network");

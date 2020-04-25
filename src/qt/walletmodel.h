@@ -5,13 +5,14 @@
 #ifndef BITCOIN_QT_WALLETMODEL_H
 #define BITCOIN_QT_WALLETMODEL_H
 
+#include "askpassphrasedialog.h"
 #include "paymentrequestplus.h"
 #include "walletmodeltransaction.h"
 
 #include "allocators.h" /* for SecureString */
 #include "guiutil.h"
 #include "swifttx.h"
-#include "wallet.h"
+#include "wallet/wallet.h"
 #include "init.h"
 
 #include <map>
@@ -145,7 +146,6 @@ public:
     CAmount getWatchUnconfirmedBalance() const;
     CAmount getWatchImmatureBalance() const;
     EncryptionStatus getEncryptionStatus() const;
-    bool isMultiSigSetup() const;
     CKey generateNewKey() const; //for temporary paper wallet key generation
     bool setAddressBook(const CTxDestination& address, const string& strName, const string& strPurpose);
     void encryptKey(const CKey key, const std::string& pwd, const std::string& slt, std::vector<unsigned char>& crypted);
@@ -173,6 +173,11 @@ public:
     bool setWalletEncrypted(bool encrypted, const SecureString& passphrase);
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString& passPhrase = SecureString(), bool anonymizeOnly = false);
+
+    // Method used to "lock" the wallet only for staking purposes. Just a flag that should prevent possible movements in the wallet.
+    // Passphrase only needed when unlocking.
+    bool lockForStakingOnly(const SecureString& passPhrase = SecureString());
+
     bool changePassphrase(const SecureString& oldPass, const SecureString& newPass);
     // Is wallet unlocked for anonymization only?
     bool isAnonymizeOnlyUnlocked();
@@ -203,7 +208,7 @@ public:
         void CopyFrom(const UnlockContext& rhs);
     };
 
-    UnlockContext requestUnlock(bool relock = false);
+    UnlockContext requestUnlock(AskPassphraseDialog::Context context, bool relock = false);
 
     CWallet* getCWallet();
 
@@ -253,7 +258,7 @@ private:
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged();
 
-signals:
+Q_SIGNALS:
     // Signal that balance in wallet changed
     void balanceChanged(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
     void stakingStatusChanged(bool isStaking);
@@ -263,7 +268,7 @@ signals:
     // Signal emitted when wallet needs to be unlocked
     // It is valid behaviour for listeners to keep the wallet locked after this signal;
     // this means that the unlocking failed or was cancelled.
-    void requireUnlock();
+    void requireUnlock(AskPassphraseDialog::Context context);
 
     // Fired when a message should be reported to the user
     void message(const QString& title, const QString& message, unsigned int style);
@@ -283,7 +288,7 @@ signals:
     void RefreshRecent();
     void WalletUnlocked();
 
-public slots:
+public Q_SLOTS:
     /* Wallet status might have changed */
     void updateStatus();
     /* New transaction, or transaction changed status */
@@ -295,7 +300,7 @@ public slots:
     void updateWatchOnlyFlag(bool fHaveWatchonly);
     /* MultiSig added */
     void updateMultiSigFlag(bool fHaveMultiSig);
-    /* Current, immature or unconfirmed balance might have changed - emit 'balanceChanged' if so */
+    /* Current, immature or unconfirmed balance might have changed - Q_EMIT 'balanceChanged' if so */
     void pollBalanceChanged();
 };
 

@@ -6,6 +6,7 @@
 #define BITCOIN_QT_WALLETVIEW_H
 
 #include "amount.h"
+#include "askpassphrasedialog.h"
 #include "masternodelist.h"
 
 #include <QStackedWidget>
@@ -16,13 +17,11 @@ class OverviewPage;
 class HistoryPage;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
-class KeyImageSync;
 class OptionsPage;
 class SendCoinsRecipient;
 class TransactionView;
 class WalletModel;
 class BlockExplorer;
-class CoSignTransaction;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -68,8 +67,6 @@ private:
     OptionsPage* optionsPage;
     HistoryPage* historyPage;
     SendCoinsDialog* sendCoinsPage;
-    KeyImageSync* keyImageSyncPage;
-    CoSignTransaction* cosignPage;
     BlockExplorer* explorerWindow;
     MasternodeList* masternodeListPage;
 
@@ -78,7 +75,7 @@ private:
     QProgressDialog* progressDialog;
     QLabel* transactionSum;
 
-public slots:
+public Q_SLOTS:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
@@ -93,9 +90,6 @@ public slots:
     void gotoOptionsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
-    void gotoCoSignPage();
-    void gotoKeyImageSyncPage();
-
     /** Show MultiSend Dialog */
     void gotoMultiSendDialog();
     /** Show a multisig tab **/
@@ -113,7 +107,7 @@ public slots:
     /** Change encrypted wallet passphrase */
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
-    void unlockWallet();
+    void unlockWallet(AskPassphraseDialog::Context context);
     /** Lock wallet */
     void lockWallet();
     /** Toggle wallet lock state */
@@ -124,7 +118,7 @@ public slots:
     /** Show used receiving addresses */
     void usedReceivingAddresses();
 
-    /** Re-emit encryption status signal */
+    /** Re-Q_EMIT encryption status signal */
     void updateEncryptionStatus();
 
     /** Show progress dialog e.g. for rescan */
@@ -134,7 +128,7 @@ public slots:
     void trxAmount(QString amount);
     void stakingStatus(bool);
 
-signals:
+Q_SIGNALS:
     /** Signal that we want to show the main window */
     void showNormalIfMinimized();
     /**  Fired when a message should be reported to the user */

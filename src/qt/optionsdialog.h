@@ -35,7 +35,7 @@ public:
 protected:
     bool eventFilter(QObject* object, QEvent* event);
 
-private slots:
+private Q_SLOTS:
     /* enable OK button */
     void enableOkButton();
     /* disable OK button */
@@ -46,11 +46,13 @@ private slots:
     void on_okButton_clicked();
     void on_cancelButton_clicked();
 
+    void updateHideOrphans(bool fHide);
+
     void showRestartWarning(bool fPersistent = false);
     void clearStatusLabel();
     void doProxyIpChecks(QValidatedLineEdit* pUiProxyIp, QLineEdit* pUiProxyPort);
 
-signals:
+Q_SIGNALS:
     void proxyIpChecks(QValidatedLineEdit* pUiProxyIp, QLineEdit* pUiProxyPort);
 
 private:

@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -72,7 +72,7 @@ bool CMasternodeDB::Write(const CMasternodeMan& mnodemanToSave)
     // Write and commit header, data
     try {
         fileout << ssMasternodes;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         return error("%s : Serialize or I/O error - %s", __func__, e.what());
     }
 
@@ -109,7 +109,7 @@ CMasternodeDB::ReadResult CMasternodeDB::Read(CMasternodeMan& mnodemanToLoad, bo
     try {
         filein.read((char*)&vchData[0], dataSize);
         filein >> hashIn;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         error("%s : Deserialize or I/O error - %s", __func__, e.what());
         return HashReadError;
     }
@@ -147,7 +147,7 @@ CMasternodeDB::ReadResult CMasternodeDB::Read(CMasternodeMan& mnodemanToLoad, bo
         }
         // de-serialize data into CMasternodeMan object
         ssMasternodes >> mnodemanToLoad;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         mnodemanToLoad.Clear();
         error("%s : Deserialize or I/O error - %s", __func__, e.what());
         return IncorrectFormat;
@@ -393,7 +393,7 @@ void CMasternodeMan::CountNetworks(int protocolVersion, int& ipv4, int& ipv6, in
         std::string strHost;
         int port;
         SplitHostPort(mn.addr.ToString(), port, strHost);
-        CNetAddr node = CNetAddr(strHost, false);
+        CNetAddr node = CNetAddr(strHost);
         int nNetwork = node.GetNetwork();
         switch (nNetwork) {
             case 1 :
@@ -738,7 +738,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         // make sure the vout that was signed is related to the transaction that spawned the Masternode
         //  - this is expensive, so it's only done once per Masternode
         if (!obfuScationSigner.IsVinAssociatedWithPubkey(mnb.vin, mnb.pubKeyCollateralAddress)) {
-            LogPrint("masternode","mnb - Got mismatched pubkey and vin\n");
+            LogPrintf("CMasternodeMan::ProcessMessage() : mnb - Got mismatched pubkey and vin\n");
             Misbehaving(pfrom->GetId(), 33);
             return;
         }
@@ -796,6 +796,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 if (i != mAskedUsForMasternodeList.end()) {
                     int64_t t = (*i).second;
                     if (GetTime() < t) {
+                        LogPrintf("CMasternodeMan::ProcessMessage() : dseg - peer already asked me for the list\n");
                         Misbehaving(pfrom->GetId(), 34);
                         return;
                     }
@@ -858,13 +859,13 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         vRecv >> vin >> addr >> vchSig >> sigTime >> pubkey >> pubkey2 >> count >> current >> lastUpdated >> protocolVersion >> donationAddress >> donationPercentage;
         // make sure signature isn't in the future (past is OK)
         if (sigTime > GetAdjustedTime() + 60 * 60) {
-            LogPrint("masternode","dsee - Signature rejected, too far into the future %s\n", vin.prevout.hash.ToString());
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - Signature rejected, too far into the future %s\n", vin.prevout.hash.ToString());
             Misbehaving(pfrom->GetId(), 1);
             return;
         }
 
         if (!VerifyShnorrKeyImageTxIn(vin, GetTxInSignatureHash(vin))) {
-            LogPrint("masternode","dsee - Shnorr Signature rejected%s\n", vin.prevout.hash.ToString());
+            LogPrint("masternode","dsee - Shnorr Signature rejected: %s\n", vin.prevout.hash.ToString());
             return;
         }
 
@@ -874,7 +875,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         uint256 bh;
         if (!GetTransaction(prevout.hash, prev, bh, true)) {
             LogPrint("masternode","dsee - failed to read transaction hash %s\n", vin.prevout.hash.ToString());
-        	return;
+            return;
         }
 
         CTxOut out = prev.vout[prevout.n];
@@ -886,13 +887,13 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         std::vector<unsigned char> commitment;
         CWallet::CreateCommitment(mask.begin(), amount, commitment);
         if (commitment != out.commitment) {
-        	LogPrint("masternode","dsee - decoded masternode collateralization not match %s\n", vin.prevout.hash.ToString());
-        	return;
+            LogPrint("masternode","dsee - decoded masternode collateralization not match %s\n", vin.prevout.hash.ToString());
+            return;
         }
 
         if (amount != 1000000 * COIN) {
-        	LogPrint("masternode","dsee - masternode collateralization not equal to 1M %s\n", vin.prevout.hash.ToString());
-        	return;
+            LogPrint("masternode","dsee - masternode collateralization not equal to 1M %s\n", vin.prevout.hash.ToString());
+            return;
         }
 
         std::string vchPubKey(pubkey.begin(), pubkey.end());
@@ -901,14 +902,14 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         CDataStream ser(SER_NETWORK, protocolVersion);
         ser << ss << sigTime << pubkey << pubkey2 << protocolVersion;
         /*strMessage = Hash(BEGIN(ss), END(ss),
-        				BEGIN(sigTime), END(sigTime),
-						pubkey.begin(), pubkey.end(),
-						pubkey2.begin(), pubkey2.end(),
-						BEGIN(protocolVersion), END(protocolVersion)).GetHex();*/
+                        BEGIN(sigTime), END(sigTime),
+                        pubkey.begin(), pubkey.end(),
+                        pubkey2.begin(), pubkey2.end(),
+                        BEGIN(protocolVersion), END(protocolVersion)).GetHex();*/
         strMessage = HexStr(ser.begin(), ser.end());
 
         if (protocolVersion < masternodePayments.GetMinMasternodePaymentsProto()) {
-            LogPrint("masternode","dsee - ignoring outdated Masternode %s protocol version %d < %d\n", vin.prevout.hash.ToString(), protocolVersion, masternodePayments.GetMinMasternodePaymentsProto());
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - ignoring outdated Masternode %s protocol version %d < %d\n", vin.prevout.hash.ToString(), protocolVersion, masternodePayments.GetMinMasternodePaymentsProto());
             Misbehaving(pfrom->GetId(), 1);
             return;
         }
@@ -917,7 +918,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         pubkeyScript = GetScriptForDestination(pubkey);
 
         if ((pubkey.IsCompressed() && pubkeyScript.size() != 35) || (!pubkey.IsCompressed() && pubkeyScript.size() != 67)) {
-            LogPrint("masternode","dsee - pubkey the wrong size\n");
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - pubkey the wrong size\n");
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
@@ -925,13 +926,13 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         CScript pubkeyScript2;
         pubkeyScript2 = GetScriptForDestination(pubkey2);
         if ((pubkey2.IsCompressed() && pubkeyScript2.size() != 35) || (!pubkey2.IsCompressed() && pubkeyScript2.size() != 67)) {
-            LogPrint("masternode","dsee - pubkey2 the wrong size\n");
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - pubkey2 the wrong size\n");
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
 
         if (!vin.scriptSig.empty()) {
-            LogPrint("masternode","dsee - Ignore Not Empty ScriptSig %s\n", vin.prevout.hash.ToString());
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - Ignore Not Empty ScriptSig %s\n", vin.prevout.hash.ToString());
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
@@ -939,7 +940,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         std::string errorMessage = "";
         CScript sc = GetScriptForDestination(pubkey);
         if (!obfuScationSigner.VerifyMessage(pubkey, vchSig, strMessage, errorMessage)) {
-            LogPrint("masternode","dsee - Got bad Masternode address signature\n");
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - Got bad Masternode address signature\n");;
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
@@ -995,7 +996,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         // make sure the vout that was signed is related to the transaction that spawned the Masternode
         //  - this is expensive, so it's only done once per Masternode
         if (!obfuScationSigner.IsVinAssociatedWithPubkey(vin, pubkey)) {
-            LogPrint("masternode","dsee - Got mismatched pubkey and vin\n");
+            LogPrintf("CMasternodeMan::ProcessMessage() : dsee - Got mismatched pubkey and vin\n");
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
@@ -1012,7 +1013,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         if (fAcceptable) {
             if (GetInputAge(vin) < MASTERNODE_MIN_CONFIRMATIONS) {
-                LogPrint("masternode","dsee - Input must have least %d confirmations\n", MASTERNODE_MIN_CONFIRMATIONS);
+                LogPrintf("CMasternodeMan::ProcessMessage() : dsee - Input must have least %d confirmations\n", MASTERNODE_MIN_CONFIRMATIONS);
                 Misbehaving(pfrom->GetId(), 20);
                 return;
             }
@@ -1064,17 +1065,18 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         vRecv >> vin >> vchSig >> sigTime >> stop;
 
         if (!VerifyShnorrKeyImageTxIn(vin, GetTxInSignatureHash(vin))) {
-        	LogPrintf("dsee - Shnorr Signature rejected%s\n", vin.prevout.hash.ToString());
-        	return;
+            LogPrintf("dsee - Shnorr Signature rejected: %s\n", vin.prevout.hash.ToString());
+            return;
         }
 
         if (sigTime > GetAdjustedTime() + 60 * 60) {
+            LogPrintf("CMasternodeMan::ProcessMessage() : dseep - Signature rejected, too far into the future %s\n", vin.prevout.hash.ToString());
             Misbehaving(pfrom->GetId(), 1);
             return;
         }
 
         if (sigTime <= GetAdjustedTime() - 60 * 60) {
-            LogPrint("masternode", "\ndseep - Signature rejected, too far into the past %s - %d %d \n", vin.prevout.hash.ToString(), sigTime, GetAdjustedTime());
+            LogPrintf("CMasternodeMan::ProcessMessage() : dseep - Signature rejected, too far into the past %s - %d %d \n", vin.prevout.hash.ToString(), sigTime, GetAdjustedTime());
             Misbehaving(pfrom->GetId(), 1);
             return;
         }
@@ -1090,7 +1092,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         if (pmn != NULL && pmn->protocolVersion >= masternodePayments.GetMinMasternodePaymentsProto()) {
             // take this only if it's newer
             if (sigTime - pmn->nLastDseep > MASTERNODE_MIN_MNP_SECONDS) {
-            	std::string ss = pmn->addr.ToString();
+                std::string ss = pmn->addr.ToString();
                 HEX_DATA_STREAM_PROTOCOL(PROTOCOL_VERSION) << pmn->addr.ToString() << sigTime << stop;
                 std::string strMessage = HEX_STR(ser);
 

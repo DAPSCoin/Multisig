@@ -8,7 +8,7 @@
 #include "primitives/transaction.h"
 #include "main.h"
 #include "httpserver.h"
-#include "rpcserver.h"
+#include "rpc/server.h"
 #include "streams.h"
 #include "sync.h"
 #include "txmempool.h"
@@ -456,7 +456,7 @@ static bool rest_getutxos(HTTPRequest *req, const std::string &strURIPart) {
                     oss >> fCheckMemPool;
                     oss >> vOutPoints;
                 }
-            } catch (const std::ios_base::failure &e) {
+            } catch (const std::ios_base::failure& e) {
                 // abort in case of unreadable binary data
                 return RESTERR(req, HTTP_INTERNAL_SERVER_ERROR, "Parse error");
             }
@@ -556,7 +556,7 @@ static bool rest_getutxos(HTTPRequest *req, const std::string &strURIPart) {
             objGetUTXOResponse.push_back(Pair("bitmap", bitmapStringRepresentation));
 
             UniValue utxos(UniValue::VARR);
-            for (const CCoin &coin : outs) {
+            for (  const CCoin &coin : outs) {
                 UniValue utxo(UniValue::VOBJ);
                 utxo.push_back(Pair("txvers", (int32_t) coin.nTxVer));
                 utxo.push_back(Pair("height", (int32_t) coin.nHeight));

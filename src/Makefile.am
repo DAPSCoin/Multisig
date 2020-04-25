@@ -1,6 +1,6 @@
 DIST_SUBDIRS = secp256k1 secp256k1-mw univalue
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
-AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) 
+AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS)
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(HARDENED_CPPFLAGS)
 AM_LIBTOOLFLAGS = --preserve-dup-deps
 EXTRA_LIBRARIES =
@@ -30,7 +30,7 @@ $(LIBLEVELDB) $(LIBMEMENV):
 endif
 
 BITCOIN_CONFIG_INCLUDES=-I$(builddir)/config
-BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
+BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BITCOIN_CONFIG_INCLUDES) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1-mw/include
@@ -82,11 +82,11 @@ bin_PROGRAMS =
 TESTS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += dapscoind-multisig
+  bin_PROGRAMS += dapscoind
 endif
 
 if BUILD_BITCOIN_UTILS
-  bin_PROGRAMS += dapscoin-cli-multisig dapscoin-tx-multisig
+  bin_PROGRAMS += dapscoin-cli dapscoin-tx
 endif
 
 .PHONY: FORCE
@@ -94,7 +94,6 @@ endif
 BITCOIN_CORE_H = \
   activemasternode.h \
   addrman.h \
-  alert.h \
   allocators.h \
   amount.h \
   base58.h \
@@ -121,7 +120,7 @@ BITCOIN_CORE_H = \
   crypter.h \
   obfuscation.h \
   obfuscation-relay.h \
-  db.h \
+  wallet/db.h \
   eccryptoverify.h \
   ecwrapper.h \
   hash.h \
@@ -147,15 +146,15 @@ BITCOIN_CORE_H = \
   netbase.h \
   net.h \
   noui.h \
-  pow.h \
+  poa.h \
   protocol.h \
   pubkey.h \
   random.h \
   reverselock.h \
   reverse_iterate.h \
-  rpcclient.h \
-  rpcprotocol.h \
-  rpcserver.h \
+  rpc/client.h \
+  rpc/protocol.h \
+  rpc/server.h \
   scheduler.h \
   script/interpreter.h \
   script/script.h \
@@ -172,18 +171,20 @@ BITCOIN_CORE_H = \
   torcontrol.h \
   txdb.h \
   txmempool.h \
-  ui_interface.h \
+  guiinterface.h \
   uint256.h \
   undo.h \
   util.h \
+  util/macros.h \
+  util/threadnames.h \
   utilstrencodings.h \
   utilmoneystr.h \
   utiltime.h \
   validationinterface.h \
   version.h \
-  wallet.h \
-  wallet_ismine.h \
-  walletdb.h \
+  wallet/wallet.h \
+  wallet/wallet_ismine.h \
+  wallet/walletdb.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h \
   zmq/zmqnotificationinterface.h \
@@ -200,7 +201,6 @@ libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
 libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \
-  alert.cpp \
   bloom.cpp \
   chain.cpp \
   checkpoints.cpp \
@@ -213,16 +213,16 @@ libbitcoin_server_a_SOURCES = \
   miner.cpp \
   net.cpp \
   noui.cpp \
-  pow.cpp \
+  poa.cpp \
   rest.cpp \
-  rpcblockchain.cpp \
-  rpcmasternode.cpp \
-  rpcmasternode-budget.cpp \
-  rpcmining.cpp \
-  rpcmisc.cpp \
-  rpcnet.cpp \
-  rpcrawtransaction.cpp \
-  rpcserver.cpp \
+  rpc/blockchain.cpp \
+  rpc/masternode.cpp \
+  rpc/budget.cpp \
+  rpc/mining.cpp \
+  rpc/misc.cpp \
+  rpc/net.cpp \
+  rpc/rawtransaction.cpp \
+  rpc/server.cpp \
   script/sigcache.cpp \
   timedata.cpp \
   torcontrol.cpp \
@@ -268,7 +268,7 @@ libbitcoin_wallet_a_SOURCES = \
   bip38.cpp \
   obfuscation.cpp \
   obfuscation-relay.cpp \
-  db.cpp \
+  wallet/db.cpp \
   crypter.cpp \
   swifttx.cpp \
   masternode.cpp \
@@ -277,12 +277,12 @@ libbitcoin_wallet_a_SOURCES = \
   masternode-sync.cpp \
   masternodeconfig.cpp \
   masternodeman.cpp \
-  rpcdump.cpp \
-  rpcwallet.cpp \
+  wallet/rpcdump.cpp \
+  wallet/rpcwallet.cpp \
   kernel.cpp \
-  wallet.cpp \
-  wallet_ismine.cpp \
-  walletdb.cpp \
+  wallet/wallet.cpp \
+  wallet/wallet_ismine.cpp \
+  wallet/walletdb.cpp \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library
@@ -365,11 +365,12 @@ libbitcoin_util_a_SOURCES = \
   chainparamsbase.cpp \
   clientversion.cpp \
   random.cpp \
-  rpcprotocol.cpp \
+  rpc/protocol.cpp \
   sync.cpp \
   uint256.cpp \
   util.cpp \
   utilstrencodings.cpp \
+  util/threadnames.cpp \
   utilmoneystr.cpp \
   utiltime.cpp \
   $(BITCOIN_CORE_H)
@@ -383,14 +384,14 @@ endif
 # cli: shared between dapscoin-cli and dapscoin-qt
 libbitcoin_cli_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_cli_a_SOURCES = \
-  rpcclient.cpp \
+  rpc/client.cpp \
   $(BITCOIN_CORE_H)
 
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
 # bitcoind binary #
-dapscoind_multisig_LDADD = \
+dapscoind_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBUNIVALUE) \
@@ -399,29 +400,29 @@ dapscoind_multisig_LDADD = \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
   $(LIBSECP256K1) \
-  $(LIBSECP256K1_2) 
+  $(LIBSECP256K1_2)
 
 if ENABLE_ZMQ
-dapscoind_multisig_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
+dapscoind_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_WALLET
-dapscoind_multisig_LDADD += libbitcoin_wallet.a $(LIBBITCOIN_ZXCVBN)
+dapscoind_LDADD += libbitcoin_wallet.a $(LIBBITCOIN_ZXCVBN)
 endif
-dapscoind_multisig_SOURCES = dapscoind.cpp
+dapscoind_SOURCES = dapscoind.cpp
 #
 
 if TARGET_WINDOWS
-dapscoind_multisig_SOURCES += dapscoind-res.rc
+dapscoind_SOURCES += dapscoind-res.rc
 endif
 
-dapscoind_multisig_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
-dapscoind_multisig_CPPFLAGS = $(BITCOIN_INCLUDES)
-dapscoind_multisig_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+dapscoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
+dapscoind_CPPFLAGS = $(BITCOIN_INCLUDES)
+dapscoind_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 
 # dapscoin-cli binary #
-dapscoin_cli_multisig_LDADD = \
+dapscoin_cli_LDADD = \
   $(LIBBITCOIN_CLI) \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_UTIL) \
@@ -431,16 +432,16 @@ dapscoin_cli_multisig_LDADD = \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
   $(LIBSECP256K1) \
-  $(LIBSECP256K1_2) 
+  $(LIBSECP256K1_2)
 
-dapscoin_cli_multisig_SOURCES = \
+dapscoin_cli_SOURCES = \
   dapscoin-cli.cpp
 
-dapscoin_cli_multisig_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
+dapscoin_cli_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
 #
 
 # dapscoin-tx binary #
-dapscoin_tx_multisig_LDADD = \
+dapscoin_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
@@ -450,15 +451,15 @@ dapscoin_tx_multisig_LDADD = \
   $(CRYPTO_LIBS) \
   $(LIBSECP256K1_2)
 
-dapscoin_tx_multisig_SOURCES = dapscoin-tx.cpp
-dapscoin_tx_multisig_CPPFLAGS = $(BITCOIN_INCLUDES)
+dapscoin_tx_SOURCES = dapscoin-tx.cpp
+dapscoin_tx_CPPFLAGS = $(BITCOIN_INCLUDES)
 #
-dapscoin_tx_multisig_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+dapscoin_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-dapscoin_cli_multisig_SOURCES += dapscoin-cli-res.rc
+dapscoin_cli_SOURCES += dapscoin-cli-res.rc
 endif
-dapscoin_cli_multisig_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+dapscoin_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if BUILD_BITCOIN_LIBS
 include_HEADERS = script/bitcoinconsensus.h
@@ -508,6 +509,13 @@ DISTCLEANFILES = obj/build.h
 
 EXTRA_DIST = leveldb
 
+config/dapscoin-config.h: config/stamp-h1
+	@$(MAKE) -C $(top_builddir) $(subdir)/$(@)
+config/stamp-h1: $(top_srcdir)/$(subdir)/config/dapscoin-config.h.in $(top_builddir)/config.status
+	$(AM_V_at)$(MAKE) -C $(top_builddir) $(subdir)/$(@)
+$(top_srcdir)/$(subdir)/config/dapscoin-config.h.in:  $(am__configure_deps)
+	$(AM_V_at)$(MAKE) -C $(top_srcdir) $(subdir)/config/dapscoin-config.h.in
+	
 clean-local:
 	-$(MAKE) -C leveldb clean
 	-$(MAKE) -C secp256k1 clean
@@ -518,7 +526,8 @@ clean-local:
 
 .rc.o:
 	@test -f $(WINDRES)
-	$(AM_V_GEN) $(WINDRES) -DWINDRES_PREPROC -i $< -o $@
+	## FIXME: How to get the appropriate modulename_CPPFLAGS in here?
+	$(AM_V_GEN) $(WINDRES) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) -DWINDRES_PREPROC -i $< -o $@
 
 .mm.o:
 	$(AM_V_CXX) $(OBJCXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \

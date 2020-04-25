@@ -27,7 +27,8 @@ QComboBox:disabled,
   border: 1px solid rgb(51, 54, 54);
 }*/
 
-#line_1, #line_2, #line_3, #line_4 {
+#line_1, #line_2, #line_3,
+#line_4, #line_5, #line_6 {
   border-bottom: 1px solid gray;
   max-height: 5px;
   margin: 5px;
@@ -43,6 +44,12 @@ QComboBox:disabled,
   font-size: 11px;
   font-style: italic;
   padding-left: 52px;
+  color: white;
+}
+#blockCount {
+  font-size: 11px;
+  font-style: italic;
+  padding-left: 68px;
   color: white;
 }
 
@@ -145,6 +152,19 @@ QCheckBox::indicator:checked {
   margin: 7px;
 }
 
+QGroupBox {
+    font: bold;
+    border: 1px solid black;
+    border-radius: 6px;
+    margin-top: 6px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 7px;
+    padding: 0px 5px 0px 5px;
+}
+
 /*** Line Edits, ComboBoxes ***/
 .QValidatedLineEdit,
 .QLineEdit,
@@ -175,11 +195,30 @@ QTextEdit {
 QAbstractSpinBox:focus,
 QComboBox:focus,
 QComboBox::item:selected,
-QMenuBar::item:selected,
 QMenu::item:selected,
 QTextEdit:focus {
   border-width: 4px;
   background: #a7a7a7;
+}
+
+QMenuBar {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 lightgray, stop:1 darkgray);
+    spacing: 3px; /* spacing between menu bar items */
+}
+
+QMenuBar::item {
+    padding: 1px 4px;
+    background: transparent;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected { /* when selected using mouse or keyboard */
+    background: #a7a7a7;
+}
+
+QMenuBar::item:pressed {
+    background: #888888;
 }
 
 QToolTip {
@@ -193,7 +232,14 @@ QMenu::item {
     padding: 2px 25px 2px 20px;
     border: 1px solid transparent; /* reserve space for selection border */
     color: black;
-    background: white;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 lightgray, stop:1 darkgray);
+}
+
+QMenu::separator {
+    background: black;
+    width: 1px; /* when vertical */
+    height: 1px; /* when horizontal */
 }
 
 QComboBox:checked {

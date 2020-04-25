@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -136,7 +136,7 @@ bool fLogIPs = false;
 volatile bool fReopenDebugLog = false;
 
 /** Init OpenSSL library multithreading support */
-static CCriticalSection** ppmutexOpenSSL;
+static RecursiveMutex** ppmutexOpenSSL;
 void locking_callback(int mode, int i, const char* file, int line) NO_THREAD_SAFETY_ANALYSIS
 {
     if (mode & CRYPTO_LOCK) {
@@ -153,9 +153,9 @@ public:
     CInit()
     {
         // Init OpenSSL library multithreading support
-        ppmutexOpenSSL = (CCriticalSection**)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(CCriticalSection*));
+        ppmutexOpenSSL = (RecursiveMutex**)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(RecursiveMutex*));
         for (int i = 0; i < CRYPTO_num_locks(); i++)
-            ppmutexOpenSSL[i] = new CCriticalSection();
+            ppmutexOpenSSL[i] = new RecursiveMutex();
         CRYPTO_set_locking_callback(locking_callback);
 
         // OpenSSL can optionally load a config file which lists optional loadable modules and engines.
@@ -253,7 +253,7 @@ bool LogAcceptCategory(const char* category)
 
 std::string FilterInjection(const std::string& str) 
 {
-	//std::cout << "filtering" << std::endl;
+    //std::cout << "filtering" << std::endl;
     int n = str.length(); 
     char char_array[n + 1];
     strcpy(char_array, str.c_str());
@@ -416,7 +416,7 @@ std::string HelpMessageOpt(const std::string &option, const std::string &message
            std::string("\n\n");
 }
 
-static std::string FormatException(std::exception* pex, const char* pszThread)
+static std::string FormatException(const std::exception* pex, const char* pszThread)
 {
 #ifdef WIN32
     char pszModule[MAX_PATH] = "";
@@ -432,7 +432,7 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
             "UNKNOWN EXCEPTION       \n%s in %s       \n", pszModule, pszThread);
 }
 
-void PrintExceptionContinue(std::exception* pex, const char* pszThread)
+void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 {
     std::string message = FormatException(pex, pszThread);
     LogPrintf("\n\n************************\n%s\n", message);
@@ -449,7 +449,7 @@ boost::filesystem::path GetDefaultDataDir()
 // Unix: ~/.dapscoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "DAPScoin-Multisig";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "DAPScoin";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -461,17 +461,17 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     TryCreateDirectory(pathRet);
-    return pathRet / "DAPScoin-Multisig";
+    return pathRet / "DAPScoin";
 #else
     // Unix
-    return pathRet / ".dapscoin-multisig";
+    return pathRet / ".dapscoin";
 #endif
 #endif
 }
 
 static boost::filesystem::path pathCached;
 static boost::filesystem::path pathCachedNetSpecific;
-static CCriticalSection csPathCached;
+static RecursiveMutex csPathCached;
 
 const boost::filesystem::path& GetDataDir(bool fNetSpecific)
 {
@@ -596,7 +596,7 @@ bool TryCreateDirectory(const boost::filesystem::path& p)
 {
     try {
         return boost::filesystem::create_directory(p);
-    } catch (boost::filesystem::filesystem_error) {
+    } catch (const boost::filesystem::filesystem_error&) {
         if (!boost::filesystem::exists(p) || !boost::filesystem::is_directory(p))
             throw;
     }
@@ -769,30 +769,6 @@ void runCommand(std::string strCommand)
         LogPrintf("runCommand error: system(%s) returned %d\n", strCommand, nErr);
 }
 
-void RenameThread(const char* name)
-{
-#if defined(PR_SET_NAME)
-    // Only the first 15 characters are used (16 - NUL terminator)
-    ::prctl(PR_SET_NAME, name, 0, 0, 0);
-#elif 0 && (defined(__FreeBSD__) || defined(__OpenBSD__))
-    // TODO: This is currently disabled because it needs to be verified to work
-    //       on FreeBSD or OpenBSD first. When verified the '0 &&' part can be
-    //       removed.
-    pthread_set_name_np(pthread_self(), name);
-
-#elif defined(MAC_OSX) && defined(__MAC_OS_X_VERSION_MAX_ALLOWED)
-
-// pthread_setname_np is XCode 10.6-and-later
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
-    pthread_setname_np(name);
-#endif
-
-#else
-    // Prevent warnings for unused parameters...
-    (void)name;
-#endif
-}
-
 void SetupEnvironment()
 {
 // On most POSIX systems (e.g. Linux, but not BSD) the environment's locale
@@ -825,18 +801,6 @@ bool PointHashingSuccessively(const CPubKey& pk, const unsigned char* tweak, uns
         memcpy(pubData + 1, hash.begin(), 32);
         newPubKey.Set(pubData, pubData + 33);
         memcpy(out, newPubKey.begin(), newPubKey.size());
-    }
-    return true;
-}
-
-bool MultiplyScalar(unsigned char* ret, const unsigned char* input, int times)
-{
-    if (!ret || !input) return false;
-    memcpy(ret, input, 32);
-    for(int i = 1; i < times; i++) {
-        if (!secp256k1_ec_privkey_tweak_add(ret, input)) {
-            return false;
-        }
     }
     return true;
 }

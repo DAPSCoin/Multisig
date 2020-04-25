@@ -18,7 +18,7 @@
 #include <QSettings>
 #include <QSizeGrip>
 #include <togglebutton.h>
-#include "wallet.h"
+#include "wallet/wallet.h"
 
 class OptionsModel;
 class WalletModel;
@@ -55,7 +55,7 @@ public:
     bool matchNewPasswords();
     StakingStatusError getStakingStatusError(QString&);
 
-public slots:
+public Q_SLOTS:
     void on_EnableStaking(ToggleButton*);
 
 protected:
@@ -77,7 +77,7 @@ private:
     QTimer* timerStakingToggleSync;
     void saveConsolidationSettingTime(bool);
 
-private slots:
+private Q_SLOTS:
     void validateNewPass();
     void validateNewPassRepeat();
     void onOldPassChanged();
@@ -97,6 +97,9 @@ private slots:
     void onShowMnemonic();
     void setStakingToggle();
     void setAutoConsolidate(int);
+    void mapPortUpnp_clicked(int);
+    void minimizeToTray_clicked(int);
+    void minimizeOnClose_clicked(int);
 };
 
 #endif // BITCOIN_QT_OPTIONSPAGE_H

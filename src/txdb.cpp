@@ -1,14 +1,14 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "txdb.h"
 
 #include "main.h"
-#include "pow.h"
+#include "poa.h"
 #include "uint256.h"
 
 #include <stdint.h>
@@ -151,7 +151,7 @@ bool CCoinsViewDB::GetStats(CCoinsStats& stats) const
                 ss << VARINT(0);
             }
             pcursor->Next();
-        } catch (std::exception& e) {
+        } catch (const std::exception& e) {
             return error("%s : Deserialize or I/O error - %s", __func__, e.what());
         }
     }
@@ -300,9 +300,6 @@ bool CBlockTreeDB::LoadBlockIndexGuts()
                     if (!CheckProofOfWork(pindexNew->GetBlockHash(), pindexNew->nBits))
                         return error("LoadBlockIndex() : CheckProofOfWork failed: %s", pindexNew->ToString());
                 }
-                // ppcoin: build setStakeSeen
-                if (pindexNew->IsProofOfStake())
-                    setStakeSeen.insert(make_pair(pindexNew->prevoutStake, pindexNew->nStakeTime));
 
                 //populate accumulator checksum map in memory
                 if(pindexNew->nAccumulatorCheckpoint != 0 && pindexNew->nAccumulatorCheckpoint != nPreviousCheckpoint) {
@@ -313,7 +310,7 @@ bool CBlockTreeDB::LoadBlockIndexGuts()
             } else {
                 break; // if shutdown requested or finished loading block index
             }
-        } catch (std::exception& e) {
+        } catch (const std::exception& e) {
             return error("%s : Deserialize or I/O error - %s", __func__, e.what());
         }
     }

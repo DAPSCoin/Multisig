@@ -48,7 +48,7 @@ public:
 protected:
     virtual bool eventFilter(QObject* obj, QEvent* event);
 
-private slots:
+private Q_SLOTS:
     void on_lineEdit_returnPressed();
     void on_tabWidget_currentChanged(int index);
     /** open the debug.log from the current datadir */
@@ -69,7 +69,7 @@ private slots:
     /** clear the selected node */
     void clearSelectedNode();
 
-public slots:
+public Q_SLOTS:
     void clear();
 
     /** Wallet repair options */
@@ -117,10 +117,12 @@ public slots:
     void banSelectedNode(int bantime);
     /** Unban a selected node on the Bans tab */
     void unbanSelectedNode();
+    /** Show DataDir folder in default browser */
+    void showDataDir();
     /** Show folder with wallet backups in default browser */
     void showBackups();
 
-signals:
+Q_SIGNALS:
     // For RPC command executor
     void stopExecutor();
     void cmdRequest(const QString& command);

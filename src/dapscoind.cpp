@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,12 +11,12 @@
 #include "main.h"
 #include "masternodeconfig.h"
 #include "noui.h"
-#include "rpcserver.h"
-#include "ui_interface.h"
+#include "rpc/server.h"
+#include "guiinterface.h"
 #include "util.h"
 #include "httpserver.h"
 #include "httprpc.h"
-#include "rpcserver.h"
+#include "rpc/server.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
@@ -41,6 +41,7 @@
  */
 
 static bool fDaemon;
+static bool fMasternode;
 
 void WaitForShutdown()
 {
@@ -70,13 +71,13 @@ bool AppInit(int argc, char* argv[])
 
     // Process help and version before taking care about datadir
     if (mapArgs.count("-?") || mapArgs.count("-help") || mapArgs.count("-version")) {
-        std::string strUsage = _("Dapscoin Core Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n";
+        std::string strUsage = _("DAPS Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n";
 
         if (mapArgs.count("-version")) {
             strUsage += LicenseInfo();
         } else {
             strUsage += "\n" + _("Usage:") + "\n" +
-                        "  dapscoind [options]                     " + _("Start Dapscoin Core Daemon") + "\n";
+                        "  dapscoind [options]                     " + _("Start DAPS Daemon") + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_BITCOIND);
         }
@@ -92,7 +93,7 @@ bool AppInit(int argc, char* argv[])
         }
         try {
             ReadConfigFile(mapArgs, mapMultiArgs);
-        } catch (std::exception& e) {
+        } catch (const std::exception& e) {
             fprintf(stderr, "Error reading configuration file: %s\n", e.what());
             return false;
         }
@@ -121,9 +122,14 @@ bool AppInit(int argc, char* argv[])
         }
 #ifndef WIN32
         fDaemon = GetBoolArg("-daemon", false);
+        fMasternode = GetBoolArg("-masternode", false);
         if (fDaemon) {
+            std::string strUsage = _("DAPS Daemon") + " " + FormatFullVersion() + "\n";
+            fprintf(stdout, "%s", strUsage.c_str());
             fprintf(stdout, "DAPS server starting\n");
-
+            if (fMasternode) {
+                fprintf(stdout, "Masternode = 1 - This is a masternode\n");
+            }
             // Daemonize
             pid_t pid = fork();
             if (pid < 0) {
@@ -142,8 +148,12 @@ bool AppInit(int argc, char* argv[])
         }
 #endif
         SoftSetBoolArg("-server", true);
+
+        // Set this early so that parameter interactions go to console
+        InitLogging();
+        InitParameterInteraction();
         fRet = AppInit2(true);
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInit()");
     } catch (...) {
         PrintExceptionContinue(NULL, "AppInit()");

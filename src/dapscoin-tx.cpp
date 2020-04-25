@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +13,7 @@
 #include "primitives/transaction.h"
 #include "script/script.h"
 #include "script/sign.h"
-#include "ui_interface.h" // for _(...)
+#include "guiinterface.h" // for _(...)
 #include <univalue.h>
 #include "util.h"
 #include "utilmoneystr.h"
@@ -50,7 +50,7 @@ static bool AppInitRawTx(int argc, char* argv[])
 
     if (argc < 2 || mapArgs.count("-?") || mapArgs.count("-help")) {
         // First part of help message is specific to this utility
-        std::string strUsage = _("Dapscoin Core dapscoin-tx utility version") + " " + FormatFullVersion() + "\n\n" +
+        std::string strUsage = _("DAPS dapscoin-tx utility version") + " " + FormatFullVersion() + "\n\n" +
                                _("Usage:") + "\n" +
                                "  dapscoin-tx [options] <hex-tx> [commands]  " + _("Update hex-encoded dapscoin transaction") + "\n" +
                                "  dapscoin-tx [options] -create [commands]   " + _("Create hex-encoded dapscoin transaction") + "\n" +
@@ -598,9 +598,9 @@ static int CommandLineRawTx(int argc, char* argv[])
         OutputTx(tx);
     }
 
-    catch (boost::thread_interrupted) {
+    catch (const boost::thread_interrupted&) {
         throw;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         strPrint = string("error: ") + e.what();
         nRet = EXIT_FAILURE;
     } catch (...) {
@@ -621,7 +621,7 @@ int main(int argc, char* argv[])
     try {
         if (!AppInitRawTx(argc, argv))
             return EXIT_FAILURE;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInitRawTx()");
         return EXIT_FAILURE;
     } catch (...) {
@@ -632,7 +632,7 @@ int main(int argc, char* argv[])
     int ret = EXIT_FAILURE;
     try {
         ret = CommandLineRawTx(argc, argv);
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "CommandLineRawTx()");
     } catch (...) {
         PrintExceptionContinue(NULL, "CommandLineRawTx()");

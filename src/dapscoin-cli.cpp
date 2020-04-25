@@ -2,14 +2,14 @@
 // Copyright (c) 2009-2015 The Bitcoin developers
 // Copyright (c) 2009-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "chainparamsbase.h"
 #include "clientversion.h"
-#include "rpcclient.h"
-#include "rpcprotocol.h"
+#include "rpc/client.h"
+#include "rpc/protocol.h"
 #include "util.h"
 #include "utilstrencodings.h"
 
@@ -73,10 +73,10 @@ static bool AppInitRPC(int argc, char* argv[])
     //
     ParseParameters(argc, argv);
     if (argc < 2 || mapArgs.count("-?") || mapArgs.count("-help") || mapArgs.count("-version")) {
-        std::string strUsage = _("Dapscoin Core RPC client version") + " " + FormatFullVersion() + "\n";
+        std::string strUsage = _("DAPS RPC client version") + " " + FormatFullVersion() + "\n";
         if (!mapArgs.count("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
-                        "  dapscoin-cli [options] <command> [params]  " + _("Send command to Dapscoin Core") + "\n" +
+                        "  dapscoin-cli [options] <command> [params]  " + _("Send command to DAPS") + "\n" +
                         "  dapscoin-cli [options] help                " + _("List commands") + "\n" +
                         "  dapscoin-cli [options] help <command>      " + _("Get help for a command") + "\n";
 
@@ -92,7 +92,7 @@ static bool AppInitRPC(int argc, char* argv[])
     }
     try {
         ReadConfigFile(mapArgs, mapMultiArgs);
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         fprintf(stderr, "Error reading configuration file: %s\n", e.what());
         return false;
     }
@@ -274,9 +274,9 @@ int CommandLineRPC(int argc, char* argv[])
                     throw;
             }
         } while (fWait);
-    } catch (boost::thread_interrupted) {
+    } catch (const boost::thread_interrupted&) {
         throw;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         strPrint = string("error: ") + e.what();
         nRet = EXIT_FAILURE;
     } catch (...) {
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
     try {
         if (!AppInitRPC(argc, argv))
             return EXIT_FAILURE;
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInitRPC()");
         return EXIT_FAILURE;
     } catch (...) {
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
     int ret = EXIT_FAILURE;
     try {
         ret = CommandLineRPC(argc, argv);
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "CommandLineRPC()");
     } catch (...) {
         PrintExceptionContinue(NULL, "CommandLineRPC()");

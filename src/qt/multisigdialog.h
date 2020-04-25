@@ -1,5 +1,5 @@
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,7 +32,7 @@ public:
     void setModel(WalletModel* model);
     void updateCoinControl(CAmount nAmount, unsigned int nQuantity);
 
-public slots:
+public Q_SLOTS:
     void showTab(int index);
 
 private:
@@ -53,7 +53,7 @@ private:
     bool addMultisig(int m, std::vector<std::string> keys);
     bool isFullyVerified(CMutableTransaction& txToVerify);
 
-private slots:
+private Q_SLOTS:
    void deleteFrame();
    void pasteText();
    void commitMultisigTx();

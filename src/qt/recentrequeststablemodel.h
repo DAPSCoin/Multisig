@@ -67,8 +67,9 @@ public:
     enum ColumnIndex {
         Date = 0,
         Label = 1,
-        Message = 2,
-        Amount = 3,
+        Address = 2,
+        Message = 3,
+        Amount = 4,
         NUMBER_OF_COLUMNS
     };
 
@@ -89,7 +90,7 @@ public:
     void addNewRequest(const std::string& recipient);
     void addNewRequest(RecentRequestEntry& recipient);
 
-public slots:
+public Q_SLOTS:
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     void updateDisplayUnit();
 

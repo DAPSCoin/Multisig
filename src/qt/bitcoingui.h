@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QSystemTrayIcon>
 #include <QProgressDialog>
+#include <QNetworkReply>
 
 class ClientModel;
 class NetworkStyle;
@@ -85,16 +86,16 @@ private:
     UnitDisplayStatusBarControl* unitDisplayControl;
     QLabel* labelStakingIcon;
     QPushButton* labelEncryptionIcon;
+    QLabel* labelTorIcon;
     QPushButton* labelConnectionsIcon;
     QLabel* labelBlocksIcon;
 
     QMenuBar* appMenuBar;
     QAction* overviewAction;
     QAction* historyAction;
+    QAction* masternodeAction;
     QAction* quitAction;
     QAction* sendCoinsAction;
-    QAction* keyImageSyncAction;
-    QAction* cosignAction;
     QAction* usedSendingAddressesAction;
     QAction* usedReceivingAddressesAction;
     QAction* multisigCreateAction;
@@ -119,14 +120,32 @@ private:
     QAction* openRepairAction;
     QAction* openConfEditorAction;
     QAction* openMNConfEditorAction;
+    QAction* showDataDirAction;
     QAction* showBackupsAction;
     QAction* openAction;
     QAction* openBlockExplorerAction;
+    QAction* facebookAction;
+    QAction* twitterAction;
+    QAction* discordAction;
+    QAction* telegramOfficialAction;
+    QAction* telegramLoungeAction;
+    QAction* mediumAction;
+    QAction* steemitAction;
+    QAction* instagramAction;
+    QAction* redditAction;
     QAction* showHelpMessageAction;
+    QAction* openFAQAction;
+    QAction* openBlockExplorerAPIAction;
+    QAction* openBootStrapAction;
+    QAction* openTGTechSupportAction;
+    QAction* openTGMNSupportAction;
+    QAction* openDiscordSupportAction;
+    QAction* checkForUpdatesAction;
     QAction* multiSendAction;
     QFrame* frameBlocks;
     QLabel *stakingState;
     QLabel* connectionCount;
+    QLabel* blockCount;
     
     QProgressDialog* progressDialog = nullptr;
 
@@ -162,13 +181,13 @@ private:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
-signals:
+Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString& uri);
     /** Restart handling */
     void requestedRestart(QStringList args);
 
-public slots:
+public Q_SLOTS:
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
     /** Set number of blocks shown in the UI */
@@ -201,7 +220,11 @@ public slots:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& confirmations);
 #endif // ENABLE_WALLET
 
-private slots:
+private:
+    /** Set the Tor-enabled icon as shown in the UI. */
+    void updateTorIcon();
+
+private Q_SLOTS:
 #ifdef ENABLE_WALLET
     /** Switch to overview (home) page */
     void gotoOverviewPage();
@@ -219,9 +242,6 @@ private slots:
     void gotoOptionsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
-    void gotoCoSignPage();
-    void gotoKeyImageSyncPage();
-
     /** Show MultiSend Dialog */
     void gotoMultiSendDialog();
     /** Show MultiSig Dialog */
@@ -232,12 +252,30 @@ private slots:
     void openClicked();
 
 #endif // ENABLE_WALLET
+    /** Social Networks */
+    void facebookActionClicked();
+    void twitterActionClicked();
+    void discordActionClicked();
+    void telegramOfficialActionClicked();
+    void telegramLoungeActionClicked();
+    void mediumActionClicked();
+    void redditActionClicked();
+    void instagramActionClicked();
+    void steemitActionClicked();
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
     void aboutClicked();
     /** Show help message dialog */
     void showHelpMessageClicked();
+    void openFAQClicked();
+    void openBlockExplorerAPIClicked();
+    void openBootStrapClicked();
+    void openTGTechSupportClicked();
+    void openTGMNSupportClicked();
+    void openDiscordSupportClicked();
+    void checkForUpdatesClicked();
+    void serviceRequestFinished(QNetworkReply* reply);
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -277,7 +315,7 @@ private:
     /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
     void createContextMenu();
 
-private slots:
+private Q_SLOTS:
     /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
     void updateDisplayUnit(int newUnits);
     /** Tells underlying optionsModel to update its current display unit. */

@@ -36,6 +36,7 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(QWidget* parent) : QDialog(parent, Qt::Wi
     QAction* copyLabelAction = new QAction(tr("Copy label"), this);
     QAction* copyMessageAction = new QAction(tr("Copy message"), this);
     QAction* copyAmountAction = new QAction(tr("Copy amount"), this);
+    QAction* copyAddressAction = new QAction(tr("Copy address"), this);
 
     // context menu
     contextMenu = new QMenu(this);
@@ -43,6 +44,7 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(QWidget* parent) : QDialog(parent, Qt::Wi
     contextMenu->addAction(copyLabelAction);
     contextMenu->addAction(copyMessageAction);
     contextMenu->addAction(copyAmountAction);
+    contextMenu->addAction(copyAddressAction);
 
     // Show privacy account address
     ui->lineEditAddress->setStyleSheet("border:none; background: transparent; text-align:center;");
@@ -96,15 +98,8 @@ void ReceiveCoinsDialog::loadAccount() {
     //Set reqAddress as the master stealth address
     std::vector<std::string> addrList, accountList;
     CWallet* wl = model->getCWallet();
-    std::string multisig = wl->MyMultisigPubAddress();
-    if (!multisig.empty()) {
-    	addrList.push_back(multisig);
-    	accountList.push_back("Multisig");
-    }
-    if (addrList.empty()) return;
-
     QList<QString> stringsList;
-
+    wl->AllMyPublicAddresses(addrList, accountList);
     for(size_t i = 0; i < addrList.size(); i++) {
         if (accountList[i] == "masteraccount") continue;
         bool isDuplicate = false;
@@ -115,7 +110,7 @@ void ReceiveCoinsDialog::loadAccount() {
                 addr = QString(accountList[i].c_str()) + " - " + QString(addrList[i].c_str());
             }
         for (size_t i = 0; i < (size_t)ui->reqAddress->count(); i++) {
-            if (ui->reqAddress->itemText(i).contains(QString("Multisig"), Qt::CaseSensitive)) {
+            if (stringsList.contains(QString(addrList[i].substr(0, 30).c_str()) + "..." + QString(addrList[i].substr(addrList[i].length() - 30, 30).c_str()))) {
                 isDuplicate = true;
                 break;
             }
@@ -175,14 +170,25 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
 
     std::vector<std::string> addrList, accountList;
     CWallet* wl = model->getCWallet();
-    std::string multisig = wl->MyMultisigPubAddress();
+    wl->AllMyPublicAddresses(addrList, accountList);
     int selectedIdx = ui->reqAddress->currentIndex();
-    addrList.push_back(multisig);
-    accountList.push_back("Multisig");
     if ((int)addrList.size() > selectedIdx){
         QString address(addrList[selectedIdx].c_str());
         QString label(accountList[selectedIdx].c_str());
         QString reqMes = ui->reqID->text();
+        QString strPaymentID = ui->reqID->text();
+        if (!strPaymentID.trimmed().isEmpty()) {
+            quint64 paymentID = strPaymentID.toULongLong();
+            uint64_t id = paymentID;
+            std::string integratedAddr;
+            if (selectedIdx == 0) {
+                wl->ComputeIntegratedPublicAddress(id, "masteraccount", integratedAddr);
+            } else {
+                wl->ComputeIntegratedPublicAddress(id, accountList[selectedIdx], integratedAddr);
+            }
+            address = QString(integratedAddr.c_str());
+        }
+
         SendCoinsRecipient info(address, label, getValidatedAmount(), reqMes);
         ReceiveRequestDialog* dialog = new ReceiveRequestDialog(this);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -220,9 +226,6 @@ void ReceiveCoinsDialog::copyAddress(){
     std::vector<std::string> addrList, accountList;
     QClipboard *clipboard = QApplication::clipboard();
     CWallet* wl = model->getCWallet();
-    std::string multisig = wl->MyMultisigPubAddress();
-    if (!multisig.empty()) {
-    	addrList.push_back(multisig);
-    }
+    wl->AllMyPublicAddresses(addrList, accountList);
     clipboard->setText(QString(addrList[0].c_str()));
 }

@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,22 +11,9 @@
 #include "obfuscation.h"
 #include "swifttx.h"
 #include "timedata.h"
-#include "wallet.h"
+#include "wallet/wallet.h"
 
 #include <stdint.h>
-
-/* Return positive answer if transaction should be shown in list.
- */
-bool TransactionRecord::showTransaction(const CWalletTx& wtx)
-{
-    if (wtx.IsCoinBase()) {
-        // Ensures we show generated coins / mined transactions at depth 1
-        if (!wtx.IsInMainChain()) {
-            return false;
-        }
-    }
-    return true;
-}
 
 /*
  * Decompose CWallet transaction to model transaction records.
@@ -80,7 +67,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
                 CTxDestination address;
                 sub.idx = parts.size(); // sequence number
                 sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
-                sub.address = CBitcoinAddress(address).ToString();
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address)) {
                     // Received by DAPS Address
                     sub.credit = IsMine(*wallet, address) ? wallet->getCTxOutValue(wtx, txout) : 0;
@@ -89,7 +75,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
                 } else {
                     // Received by IP connection (deprecated features), or a multisignature or other non-simple transaction
                     sub.type = TransactionRecord::RecvFromOther;
-                    sub.address = CBitcoinAddress(address).ToString();
+                    sub.address = mapValue["from"];
                 }
                 if (wtx.IsCoinBase() || wtx.IsCoinAudit()) {
                     // Generated
@@ -105,11 +91,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
         bool involvesWatchAddress = false;
         isminetype fAllFromMe = ISMINE_SPENDABLE;
         for (const CTxIn& txin : wtx.vin) {
-            if (wallet->IsMine(wtx, txin)) {
-                fAllFromMeDenom = fAllFromMeDenom && wallet->IsDenominated(wtx, txin);
+            if (wallet->IsMine(txin)) {
+                fAllFromMeDenom = fAllFromMeDenom && wallet->IsDenominated(txin);
                 nFromMe++;
             }
-            isminetype mine = wallet->IsMine(wtx, txin);
+            isminetype mine = wallet->IsMine(txin);
             if (mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
             if (fAllFromMe > mine) fAllFromMe = mine;
         }
@@ -138,18 +124,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
             sub.type = TransactionRecord::SendToSelf;
             sub.address = "";
 
-            if (mapValue["DS"] == "1") {
-                sub.type = TransactionRecord::Obfuscated;
-                CTxDestination address;
-                if (ExtractDestination(wtx.vout[0].scriptPubKey, address)) {
-                    // Sent to DAPS Address
-                    sub.address = CBitcoinAddress(address).ToString();
-                } else {
-                    // Sent to IP, or other non-address transaction like OP_EVAL
-                    sub.address = mapValue["to"];
-                }
-            } else {
-                for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++) {
+            for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++) {
                     const CTxOut& txout = wtx.vout[nOut];
                     sub.idx = parts.size();
 
@@ -158,9 +133,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
                 }
                 CTxDestination address;
                 if (ExtractDestination(wtx.vout[0].scriptPubKey, address)) {
-                	// Sent to DAPS Address
-                	sub.address = CBitcoinAddress(address).ToString();
-                }
+                    // Sent to DAPS Address
+                    sub.address = CBitcoinAddress(address).ToString();
             }
 
             //a sendtoself transaction has second output as change
@@ -198,10 +172,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
                     // Sent to IP, or other non-address transaction like OP_EVAL
                     sub.type = TransactionRecord::SendToOther;
                     sub.address = mapValue["to"];
-                }
-
-                if (mapValue["DS"] == "1") {
-                    sub.type = TransactionRecord::Obfuscated;
                 }
 
                 CAmount nValue = wallet->getCTxOutValue(wtx, txout);

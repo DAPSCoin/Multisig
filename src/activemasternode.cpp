@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -303,10 +303,10 @@ bool CActiveMasternode::CreateBroadcast(CTxIn vin, CService service, CKey keyCol
     ser << ss << masterNodeSignatureTime << pubKeyCollateralAddress << pubKeyMasternode << PROTOCOL_VERSION;
 
     /*uint256 h = Hash(BEGIN(ss), END(ss),
-    				BEGIN(masterNodeSignatureTime), END(masterNodeSignatureTime),
-					pubKeyCollateralAddress.begin(), pubKeyCollateralAddress.end(),
-					pubKeyMasternode.begin(), pubKeyMasternode.end(),
-					BEGIN(PROTOCOL_VERSION), END(PROTOCOL_VERSION));*/
+                    BEGIN(masterNodeSignatureTime), END(masterNodeSignatureTime),
+                    pubKeyCollateralAddress.begin(), pubKeyCollateralAddress.end(),
+                    pubKeyMasternode.begin(), pubKeyMasternode.end(),
+                    BEGIN(PROTOCOL_VERSION), END(PROTOCOL_VERSION));*/
     std::string strMessage = HexStr(ser.begin(), ser.end());
     if (!obfuScationSigner.SignMessage(strMessage, retErrorMessage, vchMasterNodeSignature, keyCollateralAddress)) {
         errorMessage = "dsee sign message failed: " + retErrorMessage;
@@ -340,7 +340,7 @@ bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secr
     TRY_LOCK(pwalletMain->cs_wallet, fWallet);
     if (!fWallet) return false;
 
-    vector<COutput> possibleCoins = SelectCoinsMasternode();
+    std::vector<COutput> possibleCoins = SelectCoinsMasternode();
     COutput* selectedOutput;
 
     // Find the vin
@@ -417,19 +417,19 @@ bool CActiveMasternode::GetVinFromOutput(COutput out, CTxIn& vin, CPubKey& pubke
     pwalletMain->ComputeStealthPublicAddress("masteraccount", msa);
     std::copy(msa.begin(), msa.end(), std::back_inserter(vin.masternodeStealthAddress));
     if (!pwalletMain->generateKeyImage(out.tx->vout[out.i].scriptPubKey, vin.keyImage)) {
-    	LogPrintf("CActiveMasternode::GetMasterNodeVin - Failed to generate key image\n");
-    	return false;
+        LogPrintf("CActiveMasternode::GetMasterNodeVin - Failed to generate key image\n");
+        return false;
     }
     if (!pwalletMain->MakeShnorrSignatureTxIn(vin, GetTxInSignatureHash(vin))) {
-    	LogPrintf("CActiveMasternode::GetMasterNodeVin - Failed to make Shnorr signature\n");
-    	return false;
+        LogPrintf("CActiveMasternode::GetMasterNodeVin - Failed to make Shnorr signature\n");
+        return false;
     }
 
 
     //test verification masternode broadcast
     if (!VerifyShnorrKeyImageTxIn(vin, GetTxInSignatureHash(vin))) {
-    	LogPrintf("CActiveMasternode::GetMasterNodeVin - Failed to verify Shnorr signature\n");
-    	return false;
+        LogPrintf("CActiveMasternode::GetMasterNodeVin - Failed to verify Shnorr signature\n");
+        return false;
     }
 
     //Test the commitment and decoded value, if everything goes right, other nodes can verify it as well
@@ -437,8 +437,8 @@ bool CActiveMasternode::GetVinFromOutput(COutput out, CTxIn& vin, CPubKey& pubke
     CTransaction prev;
     uint256 bh;
     if (!GetTransaction(prevout.hash, prev, bh, true)) {
-    	LogPrint("masternode","dsee - failed to read transaction hash %s\n", vin.prevout.hash.ToString());
-    	return false;
+        LogPrint("masternode","dsee - failed to read transaction hash %s\n", vin.prevout.hash.ToString());
+        return false;
     }
 
     CTxOut txout = prev.vout[prevout.n];
@@ -450,13 +450,13 @@ bool CActiveMasternode::GetVinFromOutput(COutput out, CTxIn& vin, CPubKey& pubke
     std::vector<unsigned char> commitment;
     CWallet::CreateCommitment(mask.begin(), amount, commitment);
     if (commitment != txout.commitment) {
-    	LogPrintf("dsee - decoded masternode collateralization not match %s\n", vin.prevout.hash.ToString());
-    	return false;
+        LogPrintf("dsee - decoded masternode collateralization not match %s\n", vin.prevout.hash.ToString());
+        return false;
     }
 
     if (amount != 1000000 * COIN) {
-    	LogPrintf("dsee - masternode collateralization not equal to 1M %s\n", vin.prevout.hash.ToString());
-    	return false;
+        LogPrintf("dsee - masternode collateralization not equal to 1M %s\n", vin.prevout.hash.ToString());
+        return false;
     }
 
     return true;
@@ -465,9 +465,9 @@ bool CActiveMasternode::GetVinFromOutput(COutput out, CTxIn& vin, CPubKey& pubke
 // get all possible outputs for running Masternode
 vector<COutput> CActiveMasternode::SelectCoinsMasternode()
 {
-    vector<COutput> vCoins;
-    vector<COutput> filteredCoins;
-    vector<COutPoint> confLockedCoins;
+    std::vector<COutput> vCoins;
+    std::vector<COutput> filteredCoins;
+    std::vector<COutPoint> confLockedCoins;
 
     // Temporary unlock MN coins from masternode.conf
     if (GetBoolArg("-mnconflock", true)) {

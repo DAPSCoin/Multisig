@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,7 +28,7 @@ std::string COutPoint::ToStringShort() const
     return strprintf("%s-%u", hash.ToString().substr(0,64), n);
 }
 
-uint256 COutPoint::GetHash() const
+uint256 COutPoint::GetHash()
 {
     return Hash(BEGIN(hash), END(hash), BEGIN(n), END(n));
 }
@@ -159,7 +159,7 @@ CAmount CTransaction::GetValueOut() const
 
 bool CTransaction::UsesUTXO(const COutPoint out)
 {
-    for (const CTxIn in : vin) {
+    for (const CTxIn& in : vin) {
         if (in.prevout == out)
             return true;
     }

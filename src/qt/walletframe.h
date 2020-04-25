@@ -5,6 +5,8 @@
 #ifndef BITCOIN_QT_WALLETFRAME_H
 #define BITCOIN_QT_WALLETFRAME_H
 
+#include "askpassphrasedialog.h"
+
 #include <QFrame>
 #include <QMap>
 
@@ -42,7 +44,7 @@ private:
     bool bOutOfSync;
     WalletView* currentWalletView();
 
-public slots:
+public Q_SLOTS:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
@@ -51,13 +53,10 @@ public slots:
     void gotoMasternodePage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
-    /** Switch to cosign page */
-    void gotoCoSignPage();
     /** Switch to options page */
     void gotoOptionsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
-    void gotoKeyImageSyncPage();
     /** Switch to explorer page */
     void gotoBlockExplorerPage();
     /** Show MultiSend Dialog **/
@@ -71,7 +70,8 @@ public slots:
     /** Change encrypted wallet passphrase */
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
-    void unlockWallet();
+    void unlockWallet(AskPassphraseDialog::Context context);
+    void unlockWallet(bool setContext);
     /** Lock wallet */
     void lockWallet();
     /** Toggle Wallet Lock State */

@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,7 +18,7 @@
 
 using namespace std;
 
-extern CCriticalSection cs_budget;
+extern RecursiveMutex cs_budget;
 
 class CBudgetManager;
 class CFinalizedBudgetBroadcast;
@@ -179,7 +179,7 @@ private:
 
 public:
     // critical section to protect the inner data structures
-    mutable CCriticalSection cs;
+    mutable RecursiveMutex cs;
 
     // keep track of the scanning errors I've seen
     map<uint256, CBudgetProposal> mapProposals;
@@ -308,7 +308,7 @@ class CFinalizedBudget
 {
 private:
     // critical section to protect the inner data structures
-    mutable CCriticalSection cs;
+    mutable RecursiveMutex cs;
     bool fAutoChecked; //If it matches what we see, we'll auto vote for it (masternode only)
 
 public:
@@ -453,7 +453,7 @@ class CBudgetProposal
 {
 private:
     // critical section to protect the inner data structures
-    mutable CCriticalSection cs;
+    mutable RecursiveMutex cs;
     CAmount nAlloted;
 
 public:

@@ -1,5 +1,5 @@
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,7 +16,7 @@
 #include "coins.h"
 #include "keystore.h"
 #include "init.h"
-#include "wallet.h"
+#include "wallet/wallet.h"
 #include "script/sign.h"
 #include "script/interpreter.h"
 #include "utilmoneystr.h"
@@ -595,7 +595,7 @@ bool MultisigDialog::signMultisigTx(CMutableTransaction& tx, string& errorOut, Q
             }
         }else{
             if (model->getEncryptionStatus() == model->Locked) {
-                if (!model->requestUnlock(true).isValid()) {
+                if (!model->requestUnlock(AskPassphraseDialog::Context::Multi_Sig, true).isValid()) {
                     // Unlock wallet was cancelled
                     throw runtime_error("Error: Your wallet is locked. Please enter the wallet passphrase first.");
                 }

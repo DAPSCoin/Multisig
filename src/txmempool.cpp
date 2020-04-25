@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -38,7 +38,7 @@ CTxMemPoolEntry::CTxMemPoolEntry(const CTxMemPoolEntry& other)
 double
 CTxMemPoolEntry::GetPriority(unsigned int currentHeight) const
 {
-	return ::GetPriority(tx, currentHeight);
+    return ::GetPriority(tx, currentHeight);
 }
 
 /**
@@ -410,10 +410,10 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry& entry)
         mapTx[hash] = entry;
         const CTransaction& tx = mapTx[hash].GetTx();
         {
-        	if (tx.IsCoinStake()) {
-        		for (unsigned int i = 0; i < tx.vin.size(); i++)
-        			mapNextTx[tx.vin[i].prevout] = CInPoint(&tx, i);
-        	}
+            if (tx.IsCoinStake()) {
+                for (unsigned int i = 0; i < tx.vin.size(); i++)
+                    mapNextTx[tx.vin[i].prevout] = CInPoint(&tx, i);
+            }
         }
         nTransactionsUpdated++;
         totalTxSize += entry.GetTxSize();

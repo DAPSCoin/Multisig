@@ -9,6 +9,7 @@
 
 #include <QKeyEvent>
 #include <QWidget>
+#include <QAction>
 
 class TransactionFilterProxy;
 class WalletModel;
@@ -67,6 +68,7 @@ private:
     QComboBox* watchOnlyWidget;
     QLineEdit* addressWidget;
     QLineEdit* amountWidget;
+    QAction* hideOrphansAction;
 
     QMenu* contextMenu;
     QSignalMapper* mapperThirdPartyTxUrls;
@@ -83,7 +85,7 @@ private:
 
     bool eventFilter(QObject* obj, QEvent* event);
 
-private slots:
+private Q_SLOTS:
     void contextualMenu(const QPoint&);
     void dateRangeChanged();
     void showDetails();
@@ -95,7 +97,7 @@ private slots:
     void openThirdPartyTxUrl(QString url);
     void updateWatchOnlyColumn(bool fHaveWatchOnly);
 
-signals:
+Q_SIGNALS:
     void doubleClicked(const QModelIndex&);
 
     /**  Fired when a message should be reported to the user */
@@ -104,10 +106,11 @@ signals:
     /** Send computed sum back to wallet-view */
     void trxAmount(QString amount);
 
-public slots:
+public Q_SLOTS:
     void chooseDate(int idx);
     void chooseType(int idx);
     void hideOrphans(bool fHide);
+    void updateHideOrphans(bool fHide);
     void chooseWatchonly(int idx);
     void changedPrefix(const QString& prefix);
     void changedAmount(const QString& amount);

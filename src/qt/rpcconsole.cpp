@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,8 +14,8 @@
 
 #include "chainparams.h"
 #include "main.h"
-#include "rpcclient.h"
-#include "rpcserver.h"
+#include "rpc/client.h"
+#include "rpc/server.h"
 #include "util.h"
 
 #include <univalue.h>
@@ -35,10 +35,6 @@
 #include <QTime>
 #include <QTimer>
 #include <QStringList>
-
-#if QT_VERSION < 0x050000
-#include <QUrl>
-#endif
 
 // TODO: add a scrollback limit, as there is currently none
 // TODO: make it possible to filter out categories (esp debug messages when implemented)
@@ -74,10 +70,10 @@ class RPCExecutor : public QObject
 {
     Q_OBJECT
 
-public slots:
+public Q_SLOTS:
     void request(const QString& command);
 
-signals:
+Q_SIGNALS:
     void reply(int category, const QString& command);
 };
 
@@ -97,7 +93,7 @@ public:
         timer.start(millis);
     }
     ~QtRPCTimerBase() {}
-private slots:
+private Q_SLOTS:
             void timeout() { func(); }
 private:
     QTimer timer;
@@ -142,7 +138,7 @@ bool parseCommandLine(std::vector<std::string>& args, const std::string& strComm
         STATE_ESCAPE_DOUBLEQUOTED
     } state = STATE_EATING_SPACES;
     std::string curarg;
-    foreach (char ch, strCommand) {
+   Q_FOREACH (char ch, strCommand) {
         switch (state) {
         case STATE_ARGUMENT:      // In or after argument
         case STATE_EATING_SPACES: // Handle runs of whitespace
@@ -219,7 +215,7 @@ void RPCExecutor::request(const QString& command)
 {
     std::vector<std::string> args;
     if (!parseCommandLine(args, command.toStdString())) {
-        emit reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced ' or \""));
+        Q_EMIT reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced ' or \""));
         return;
     }
     if (args.empty())
@@ -240,19 +236,19 @@ void RPCExecutor::request(const QString& command)
         else
             strPrint = result.write(2);
 
-        emit reply(RPCConsole::CMD_REPLY, QString::fromStdString(strPrint));
-    } catch (UniValue& objError) {
+        Q_EMIT reply(RPCConsole::CMD_REPLY, QString::fromStdString(strPrint));
+    } catch (const UniValue& objError) {
         try // Nice formatting for standard-format error
         {
             int code = find_value(objError, "code").get_int();
             std::string message = find_value(objError, "message").get_str();
-            emit reply(RPCConsole::CMD_ERROR, QString::fromStdString(message) + " (code " + QString::number(code) + ")");
-        } catch (std::runtime_error&) // raised when converting to invalid type, i.e. missing code or message
+            Q_EMIT reply(RPCConsole::CMD_ERROR, QString::fromStdString(message) + " (code " + QString::number(code) + ")");
+        } catch (const std::runtime_error&) // raised when converting to invalid type, i.e. missing code or message
         {                             // Show raw JSON object
-            emit reply(RPCConsole::CMD_ERROR, QString::fromStdString(objError.write()));
+            Q_EMIT reply(RPCConsole::CMD_ERROR, QString::fromStdString(objError.write()));
         }
-    } catch (std::exception& e) {
-        emit reply(RPCConsole::CMD_ERROR, QString("Error: ") + QString::fromStdString(e.what()));
+    } catch (const std::exception& e) {
+        Q_EMIT reply(RPCConsole::CMD_ERROR, QString("Error: ") + QString::fromStdString(e.what()));
     }
 }
 
@@ -313,7 +309,7 @@ RPCConsole::RPCConsole(QWidget* parent) : QDialog(parent, Qt::WindowSystemMenuHi
 RPCConsole::~RPCConsole()
 {
     GUIUtil::saveWindowGeometry("nRPCConsoleWindow", this);
-    emit stopExecutor();
+    Q_EMIT stopExecutor();
     delete peersTableContextMenu;
     delete banTableContextMenu;
     RPCUnsetTimerInterface(rpcTimerInterface);
@@ -358,7 +354,7 @@ bool RPCConsole::eventFilter(QObject* obj, QEvent* event)
             break;
         default:
             // Typing in messages widget brings focus to line edit, and redirects key there
-            // Exclude most combinations and keys that emit no text, except paste shortcuts
+            // Exclude most combinations and keys that Q_EMIT no text, except paste shortcuts
             if (obj == ui->messagesWidget && ((!mod && !keyevt->text().isEmpty() && key != Qt::Key_Tab) ||
                                                  ((mod & Qt::ControlModifier) && key == Qt::Key_V) ||
                                                  ((mod & Qt::ShiftModifier) && key == Qt::Key_Insert))) {
@@ -587,7 +583,7 @@ void RPCConsole::buildParameterlist(QString arg)
     args.append(arg);
 
     // Send command-line arguments to BitcoinGUI::handleRestart()
-    emit handleRestart(args);
+    Q_EMIT handleRestart(args);
 }
 
 void RPCConsole::clear()
@@ -688,7 +684,7 @@ void RPCConsole::on_lineEdit_returnPressed()
 
     if (!cmd.isEmpty()) {
         message(CMD_REQUEST, cmd);
-        emit cmdRequest(cmd);
+        Q_EMIT cmdRequest(cmd);
         // Remove command, if already in history
         history.removeOne(cmd);
         // Append command to history
@@ -966,6 +962,11 @@ void RPCConsole::hideEvent(QHideEvent* event)
 
     // stop PeerTableModel auto refresh
     clientModel->getPeerTableModel()->stopAutoRefresh();
+}
+
+void RPCConsole::showDataDir()
+{
+    GUIUtil::showDataDir();
 }
 
 void RPCConsole::showBackups()

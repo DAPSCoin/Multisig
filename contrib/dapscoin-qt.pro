@@ -57,10 +57,15 @@ INCLUDEPATH += . \
 # Input
 HEADERS += src/activemasternode.h \
            src/addrman.h \
-           src/alert.h \
            src/allocators.h \
            src/amount.h \
+           src/arith_uint256.h \
            src/base58.h \
+           src/bignum.h \
+           src/bip38.h \
+           src/bip39.h \
+           src/bip39_english.h \
+           src/blocksignature.h \
            src/bloom.h \
            src/chain.h \
            src/chainparams.h \
@@ -75,16 +80,18 @@ HEADERS += src/activemasternode.h \
            src/compressor.h \
            src/core_io.h \
            src/crypter.h \
-           src/obfuscation-relay.h \
-           src/obfuscation.h \
-           src/dapscoin-config.h \
-           src/db.h \
            src/eccryptoverify.h \
+           src/ecdhutil.h \
            src/ecwrapper.h \
+           src/enum.h \
+           src/guiinterface.h \
            src/hash.h \
+           src/hdchain.h \
+           src/httprpc.h \
+           src/httpserver.h \
            src/init.h \
-           src/swifttx.h \
-           src/keepass.h \
+           src/invalid.h \
+           src/kernel.h \
            src/key.h \
            src/keystore.h \
            src/leveldbwrapper.h \
@@ -98,37 +105,47 @@ HEADERS += src/activemasternode.h \
            src/masternodeman.h \
            src/merkleblock.h \
            src/miner.h \
+           src/mintpool.h \
            src/mruset.h \
            src/net.h \
            src/netbase.h \
            src/noui.h \
-           src/pow.h \
+           src/obfuscation-relay.h \
+           src/obfuscation.h \
+           src/poa.h \
            src/protocol.h \
            src/pubkey.h \
            src/random.h \
-           src/rpcclient.h \
-           src/rpcprotocol.h \
-           src/rpcserver.h \
+           src/reverselock.h \
+           src/reverse_iterate.h \
+           src/scheduler.h \
            src/serialize.h \
-           src/spork.h \
+           src/stakeinput.h \
            src/streams.h \
+           src/swifttx.h \
            src/sync.h \
            src/threadsafety.h \
            src/timedata.h \
            src/tinyformat.h \
+           src/torcontrol.h \
            src/txdb.h \
            src/txmempool.h \
-           src/ui_interface.h \
            src/uint256.h \
+           src/uint512.h \
            src/undo.h \
            src/util.h \
            src/utilmoneystr.h \
            src/utilstrencodings.h \
            src/utiltime.h \
+           src/validationinterface.h \
            src/version.h \
-           src/wallet.h \
-           src/wallet_ismine.h \
-           src/walletdb.h \
+           src/rpc/client.h \
+           src/rpc/protocol.h \
+           src/rpc/server.h \
+           src/wallet/db.h \
+           src/wallet/wallet.h \
+           src/wallet/wallet_ismine.h \
+           src/wallet/walletdb.h \
            src/compat/sanity.h \
            src/config/dapscoin-config.h \
            src/crypto/common.h \
@@ -151,56 +168,59 @@ HEADERS += src/activemasternode.h \
            src/crypto/sph_simd.h \
            src/crypto/sph_skein.h \
            src/crypto/sph_types.h \
-           src/json/json_spirit.h \
-           src/json/json_spirit_error_position.h \
-           src/json/json_spirit_reader.h \
-           src/json/json_spirit_reader_template.h \
-           src/json/json_spirit_stream_reader.h \
-           src/json/json_spirit_utils.h \
-           src/json/json_spirit_value.h \
-           src/json/json_spirit_writer.h \
-           src/json/json_spirit_writer_template.h \
            src/obj/build.h \
            src/primitives/block.h \
            src/primitives/transaction.h \
+           src/qt/2faconfirmdialog.h \
+           src/qt/2fadialog.h \
+           src/qt/2faqrdialog.h \
            src/qt/addressbookpage.h \
            src/qt/addresstablemodel.h \
            src/qt/askpassphrasedialog.h \
+           src/qt/bantablemodel.h \
+           src/qt/bip38tooldialog.h \
            src/qt/bitcoinaddressvalidator.h \
            src/qt/bitcoinamountfield.h \
            src/qt/bitcoingui.h \
            src/qt/bitcoinunits.h \
+           src/qt/blockexplorer.h \
            src/qt/clientmodel.h \
            src/qt/coincontroldialog.h \
            src/qt/coincontroltreewidget.h \
            src/qt/csvmodelwriter.h \
-           src/qt/obfuscationconfig.h \
            src/qt/editaddressdialog.h \
+           src/qt/encryptdialog.h \
+           src/qt/entermnemonics.h \
            src/qt/guiconstants.h \
            src/qt/guiutil.h \
            src/qt/historypage.h \
+           src/qt/importorcreate.h \
            src/qt/intro.h \
            src/qt/macdockiconhandler.h \
            src/qt/macnotificationhandler.h \
+           src/qt/masternodelist.h \
+           src/qt/multisenddialog.h \
+           src/qt/multisigdialog.h \
            src/qt/networkstyle.h \
            src/qt/notificator.h \
            src/qt/openuridialog.h \
            src/qt/optionsdialog.h \
-           src/qt/optionspage.h \
            src/qt/optionsmodel.h \
+           src/qt/optionspage.h \
            src/qt/overviewpage.h \
-           src/qt/paymentrequest.pb.h \
            src/qt/paymentrequestplus.h \
            src/qt/paymentserver.h \
            src/qt/peertablemodel.h \
+           src/qt/platformstyle.h \
+           src/qt/qgoogleauth.h \
            src/qt/qvalidatedlineedit.h \
            src/qt/qvaluecombobox.h \
            src/qt/receivecoinsdialog.h \
            src/qt/receiverequestdialog.h \
            src/qt/recentrequeststablemodel.h \
+           src/qt/revealtxdialog.h \
            src/qt/rpcconsole.h \
            src/qt/sendcoinsdialog.h \
-           src/qt/cosigntransaction.h \
            src/qt/sendcoinsentry.h \
            src/qt/signverifymessagedialog.h \
            src/qt/splashscreen.h \
@@ -226,8 +246,6 @@ HEADERS += src/activemasternode.h \
            src/script/sigcache.h \
            src/script/sign.h \
            src/script/standard.h \
-           src/univalue/univalue.h \
-           src/univalue/univalue_escapes.h \
            src/leveldb/db/builder.h \
            src/leveldb/db/db_impl.h \
            src/leveldb/db/db_iter.h \
@@ -267,7 +285,6 @@ HEADERS += src/activemasternode.h \
            src/leveldb/util/random.h \
            src/leveldb/util/testharness.h \
            src/leveldb/util/testutil.h \
-           src/qt/forms/ui_aboutdialog.h \
            src/qt/test/paymentrequestdata.h \
            src/qt/test/paymentservertests.h \
            src/qt/test/uritests.h \
@@ -306,17 +323,17 @@ HEADERS += src/activemasternode.h \
            src/secp256k1/src/testrand.h \
            src/secp256k1/src/testrand_impl.h \
            src/secp256k1/src/util.h \
-           src/test/data/alertTests.raw.h \
-           src/test/data/base58_encode_decode.json.h \
-           src/test/data/base58_keys_invalid.json.h \
-           src/test/data/base58_keys_valid.json.h \
-           src/test/data/script_invalid.json.h \
-           src/test/data/script_valid.json.h \
-           src/test/data/sig_canonical.json.h \
-           src/test/data/sig_noncanonical.json.h \
-           src/test/data/sighash.json.h \
-           src/test/data/tx_invalid.json.h \
-           src/test/data/tx_valid.json.h \
+           src/test/data/alertTests.raw \
+           src/test/data/base58_encode_decode.json \
+           src/test/data/base58_keys_invalid.json \
+           src/test/data/base58_keys_valid.json \
+           src/test/data/script_invalid.json \
+           src/test/data/script_valid.json \
+           src/test/data/sig_canonical.json \
+           src/test/data/sig_noncanonical.json \
+           src/test/data/sighash.json \
+           src/test/data/tx_invalid.json \
+           src/test/data/tx_valid.json \
            src/leveldb/helpers/memenv/memenv.h \
            src/leveldb/include/leveldb/c.h \
            src/leveldb/include/leveldb/cache.h \
@@ -344,7 +361,6 @@ HEADERS += src/activemasternode.h \
 FORMS += src/qt/forms/addressbookpage.ui \
          src/qt/forms/askpassphrasedialog.ui \
          src/qt/forms/coincontroldialog.ui \
-         src/qt/forms/obfuscationconfig.ui \
          src/qt/forms/editaddressdialog.ui \
          src/qt/forms/helpmessagedialog.ui \
          src/qt/forms/historypage.ui \
@@ -357,22 +373,20 @@ FORMS += src/qt/forms/addressbookpage.ui \
          src/qt/forms/receiverequestdialog.ui \
          src/qt/forms/rpcconsole.ui \
          src/qt/forms/sendcoinsdialog.ui \
-         src/qt/forms/cosigntransaction.ui \
          src/qt/forms/sendcoinsentry.ui \
          src/qt/forms/signverifymessagedialog.ui \
          src/qt/forms/togglebutton.ui \
          src/qt/forms/txentry.ui \
          src/qt/forms/transactiondescdialog.ui \
-         src/qt/forms/multisigsetupchoosenumsigners.ui \
-         src/qt/forms/multisigsetupaddsigner.ui \
-         src/qt/forms/multisigsetupfinish.ui \
-         src/qt/forms/keyimagesync.ui
 SOURCES += src/activemasternode.cpp \
            src/addrman.cpp \
-           src/alert.cpp \
            src/allocators.cpp \
            src/amount.cpp \
+           src/arith_uint256.cpp \
            src/base58.cpp \
+           src/bip38.cpp \
+           src/bip39.cpp \
+           src/blocksignature.cpp \
            src/bloom.cpp \
            src/chain.cpp \
            src/chainparams.cpp \
@@ -384,19 +398,19 @@ SOURCES += src/activemasternode.cpp \
            src/core_read.cpp \
            src/core_write.cpp \
            src/crypter.cpp \
-           src/obfuscation-relay.cpp \
-           src/obfuscation.cpp \
            src/dapscoin-cli.cpp \
            src/dapscoin-tx.cpp \
-           src/dapscoin.cpp \
+           src/dapscoind.cpp \
            src/db.cpp \
            src/eccryptoverify.cpp \
+           src/ecdhutil.cpp \
            src/ecwrapper.cpp \
-           src/editaddressdialog.cpp \
            src/hash.cpp \
+           src/hdchain.cpp \
+           src/httprpc.cpp \
+           src/httpserver.cpp \
            src/init.cpp \
-           src/swifttx.cpp \
-           src/keepass.cpp \
+           src/kernel.cpp \
            src/key.cpp \
            src/keystore.cpp \
            src/leveldbwrapper.cpp \
@@ -409,29 +423,23 @@ SOURCES += src/activemasternode.cpp \
            src/masternodeman.cpp \
            src/merkleblock.cpp \
            src/miner.cpp \
+           src/mintpool.cpp \
            src/net.cpp \
            src/netbase.cpp \
            src/noui.cpp \
-           src/pow.cpp \
+           src/obfuscation-relay.cpp \
+           src/obfuscation.cpp \
+           src/poa.cpp \
            src/protocol.cpp \
            src/pubkey.cpp \
            src/random.cpp \
            src/rest.cpp \
-           src/rpcblockchain.cpp \
-           src/rpcclient.cpp \
-           src/rpcdump.cpp \
-           src/rpcmasternode-budget.cpp \
-           src/rpcmasternode.cpp \
-           src/rpcmining.cpp \
-           src/rpcmisc.cpp \
-           src/rpcnet.cpp \
-           src/rpcprotocol.cpp \
-           src/rpcrawtransaction.cpp \
-           src/rpcserver.cpp \
-           src/rpcwallet.cpp \
-           src/spork.cpp \
+           src/scheduler.cpp \
+           src/stakeinput.cpp \
+           src/swifttx.cpp \
            src/sync.cpp \
            src/timedata.cpp \
+           src/torcontrol.cpp \
            src/txdb.cpp \
            src/txmempool.cpp \
            src/uint256.cpp \
@@ -439,9 +447,23 @@ SOURCES += src/activemasternode.cpp \
            src/utilmoneystr.cpp \
            src/utilstrencodings.cpp \
            src/utiltime.cpp \
-           src/wallet.cpp \
-           src/wallet_ismine.cpp \
-           src/walletdb.cpp \
+           src/validationinterface.cpp \
+           src/rpc/blockchain.cpp \
+           src/rpc/client.cpp \
+           src/rpc/budget.cpp \
+           src/rpc/masternode.cpp \
+           src/rpc/mining.cpp \
+           src/rpc/misc.cpp \
+           src/rpc/net.cpp \
+           src/rpc/protocol.cpp \
+           src/rpc/rawtransaction.cpp \
+           src/rpc/server.cpp \
+           src/wallet/db.cpp \
+           src/wallet/rpcdump.cpp \
+           src/wallet/rpcwallet.cpp \
+           src/wallet/wallet.cpp \
+           src/wallet/wallet_ismine.cpp \
+           src/wallet/walletdb.cpp \
            src/compat/glibc_compat.cpp \
            src/compat/glibc_sanity.cpp \
            src/compat/glibcxx_compat.cpp \
@@ -471,43 +493,55 @@ SOURCES += src/activemasternode.cpp \
            src/json/json_spirit_writer.cpp \
            src/primitives/block.cpp \
            src/primitives/transaction.cpp \
+           src/qt/2faconfirmdialog.cpp \
+           src/qt/2fadialog.cpp \
+           src/qt/2faqrdialog.cpp \
            src/qt/addressbookpage.cpp \
            src/qt/addresstablemodel.cpp \
            src/qt/askpassphrasedialog.cpp \
+           src/qt/bantablemodel.cpp \
+           src/qt/bip38tooldialog.cpp \
            src/qt/bitcoinaddressvalidator.cpp \
            src/qt/bitcoinamountfield.cpp \
            src/qt/bitcoingui.cpp \
            src/qt/bitcoinunits.cpp \
+           src/qt/blockexplorer.cpp \
            src/qt/clientmodel.cpp \
            src/qt/coincontroldialog.cpp \
            src/qt/coincontroltreewidget.cpp \
            src/qt/csvmodelwriter.cpp \
-           src/qt/obfuscationconfig.cpp \
            src/qt/dapscoin.cpp \
            src/qt/dapscoinstrings.cpp \
            src/qt/editaddressdialog.cpp \
+           src/qt/encryptdialog.cpp \
+           src/qt/entermnemonics.cpp \
            src/qt/guiutil.cpp \
            src/qt/historypage.cpp \
+           src/qt/importorcreate.cpp \
            src/qt/intro.cpp \
+           src/qt/masternodelist.cpp \
+           src/qt/multisenddialog.cpp \
+           src/qt/multisigdialog.cpp \
            src/qt/networkstyle.cpp \
            src/qt/notificator.cpp \
            src/qt/openuridialog.cpp \
            src/qt/optionsdialog.cpp \
-           src/qt/optionspage.cpp \
            src/qt/optionsmodel.cpp \
+           src/qt/optionspage.cpp \
            src/qt/overviewpage.cpp \
-           src/qt/paymentrequest.pb.cc \
            src/qt/paymentrequestplus.cpp \
            src/qt/paymentserver.cpp \
            src/qt/peertablemodel.cpp \
+           src/qt/platformstyle.cpp \
+           src/qt/qgoogleauth.cpp \
            src/qt/qvalidatedlineedit.cpp \
            src/qt/qvaluecombobox.cpp \
            src/qt/receivecoinsdialog.cpp \
            src/qt/receiverequestdialog.cpp \
            src/qt/recentrequeststablemodel.cpp \
+           src/qt/revealtxdialog.cpp \
            src/qt/rpcconsole.cpp \
            src/qt/sendcoinsdialog.cpp \
-           src/qt/cosigntransaction.cpp \
            src/qt/sendcoinsentry.cpp \
            src/qt/signverifymessagedialog.cpp \
            src/qt/splashscreen.cpp \

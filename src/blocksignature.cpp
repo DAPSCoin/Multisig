@@ -1,5 +1,5 @@
 // Copyright (c) 2015-2018 The PIVX developers
-// Copyright (c) 2018-2019 The DAPS Project developers
+// Copyright (c) 2018-2020 The DAPS Project developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -70,10 +70,10 @@ bool CheckBlockSignature(const CBlock& block)
     std::vector<valtype> vSolutions;
     const CTxOut& txout = block.vtx[1].vout[1];
     if (!Solver(txout.scriptPubKey, whichType, vSolutions))
-    	return false;
+        return false;
     if (whichType == TX_PUBKEY || whichType == TX_PUBKEYHASH) {
-    	valtype& vchPubKey = vSolutions[0];
-    	pubkey = CPubKey(vchPubKey);
+        valtype& vchPubKey = vSolutions[0];
+        pubkey = CPubKey(vchPubKey);
     }
 
     if (!pubkey.IsValid())

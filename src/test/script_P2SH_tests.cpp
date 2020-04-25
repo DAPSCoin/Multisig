@@ -10,7 +10,7 @@
 #include "script/sign.h"
 
 #ifdef ENABLE_WALLET
-#include "wallet_ismine.h"
+#include "wallet/wallet_ismine.h"
 #endif
 
 #include <vector>
@@ -376,4 +376,4 @@ BOOST_AUTO_TEST_CASE(AreInputsStandard)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-#endif
+#endif
