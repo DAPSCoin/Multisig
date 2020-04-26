@@ -45,6 +45,8 @@ private slots:
     void on_resetButton_clicked();
     void on_okButton_clicked();
     void on_cancelButton_clicked();
+	
+    void updateHideOrphans(bool fHide);
 
     void showRestartWarning(bool fPersistent = false);
     void clearStatusLabel();
