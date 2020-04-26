@@ -332,6 +332,8 @@ void BitcoinGUI::createActions(const NetworkStyle* networkStyle)
     tabGroup->addAction(historyAction);
 
 #ifdef ENABLE_WALLET
+	//Disable masternodeAction in Multisig	
+
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -713,7 +715,9 @@ void BitcoinGUI::createTrayIconMenu()
     trayIconMenu->addAction(keyImageSyncAction);
     trayIconMenu->addAction(cosignAction);
     trayIconMenu->addAction(receiveCoinsAction);
+	trayIconMenu->addAction(historyAction);
     trayIconMenu->addSeparator();
+	trayIconMenu->addAction(optionsAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(openInfoAction);
     trayIconMenu->addAction(openRPCConsoleAction);
