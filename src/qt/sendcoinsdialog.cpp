@@ -107,6 +107,9 @@ SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent, Qt::WindowSy
     ui->labelBlockSize->setVisible(false);
     ui->labelBlockSizeText->setVisible(false);
     ui->labelCoinControlInsuffFunds->setVisible(false);
+	
+    // hide coin control frame
+    ui->frameCoinControl->hide();	
 
     ui->labelCoinControlFeatures->setVisible(false);
     ui->pushButtonCoinControl->setVisible(false);
