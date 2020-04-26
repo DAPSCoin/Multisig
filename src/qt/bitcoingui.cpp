@@ -459,6 +459,8 @@ void BitcoinGUI::createActions(const NetworkStyle* networkStyle)
     showHelpMessageAction->setStatusTip(tr("Show the DAPS help message to get a list with possible DAPS command-line options"));
 
     // Help Links
+    openBlockExplorerAPIAction = new QAction(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation), tr("&Blockhain Explorer API"), this);
+    openBlockExplorerAPIAction->setStatusTip(tr("Blockhain Explorer API"));	
     openBootStrapAction = new QAction(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation), tr("&BootStrap"), this);
     openBootStrapAction->setStatusTip(tr("BootStrap Link"));	
     openTGTechSupportAction = new QAction(QIcon(":/icons/telegram"), tr("&Telegram Tech Support"), this);
@@ -474,6 +476,7 @@ void BitcoinGUI::createActions(const NetworkStyle* networkStyle)
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(gotoOptionsPage()));
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
+    connect(openBlockExplorerAPIAction, SIGNAL(triggered()), this, SLOT(openBlockExplorerAPIClicked()));	
 	connect(openBootStrapAction, SIGNAL(triggered()), this, SLOT(openBootStrapClicked()));
     connect(openTGTechSupportAction, SIGNAL(triggered()), this, SLOT(openTGTechSupportClicked()));
     connect(openTGMNSupportAction, SIGNAL(triggered()), this, SLOT(openTGMNSupportClicked()));
@@ -571,6 +574,7 @@ void BitcoinGUI::createMenuBar()
     QMenu* help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(showHelpMessageAction);
     help->addSeparator();
+    help->addAction(openBlockExplorerAPIAction);	
     help->addAction(openBootStrapAction);
     help->addSeparator();	
     help->addAction(openTGTechSupportAction);
@@ -872,6 +876,11 @@ void BitcoinGUI::showHelpMessageClicked()
     HelpMessageDialog* help = new HelpMessageDialog(this, false);
     help->setAttribute(Qt::WA_DeleteOnClose);
     help->show();
+}
+
+void BitcoinGUI::openBlockExplorerAPIClicked()
+{
+    QDesktopServices::openUrl(QUrl("https://explorer.dapscoin.com/api/getblockcount"));
 }
 
 void BitcoinGUI::openBootStrapClicked()
