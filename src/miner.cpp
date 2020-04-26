@@ -642,7 +642,7 @@ bool fGenerateDapscoins = false;
 
 void BitcoinMiner(CWallet* pwallet, bool fProofOfStake, MineType mineType)
 {
-	//disable in multisig
+	//disable in multisig wallet
 }
 
 void static ThreadBitcoinMiner(void* parg)
