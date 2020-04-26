@@ -78,7 +78,7 @@ HEADERS += src/activemasternode.h \
            src/obfuscation-relay.h \
            src/obfuscation.h \
            src/dapscoin-config.h \
-           src/db.h \
+           src/wallet/db.h \
            src/eccryptoverify.h \
            src/ecwrapper.h \
            src/hash.h \
@@ -118,7 +118,7 @@ HEADERS += src/activemasternode.h \
            src/tinyformat.h \
            src/txdb.h \
            src/txmempool.h \
-           src/ui_interface.h \
+           src/guiinterface.h \
            src/uint256.h \
            src/undo.h \
            src/util.h \
@@ -126,7 +126,7 @@ HEADERS += src/activemasternode.h \
            src/utilstrencodings.h \
            src/utiltime.h \
            src/version.h \
-           src/wallet.h \
+           src/wallet/wallet.h \
            src/wallet_ismine.h \
            src/walletdb.h \
            src/compat/sanity.h \
@@ -417,18 +417,18 @@ SOURCES += src/activemasternode.cpp \
            src/pubkey.cpp \
            src/random.cpp \
            src/rest.cpp \
-           src/rpcblockchain.cpp \
-           src/rpcclient.cpp \
-           src/rpcdump.cpp \
-           src/rpcmasternode-budget.cpp \
-           src/rpcmasternode.cpp \
-           src/rpcmining.cpp \
-           src/rpcmisc.cpp \
-           src/rpcnet.cpp \
-           src/rpcprotocol.cpp \
-           src/rpcrawtransaction.cpp \
-           src/rpcserver.cpp \
-           src/rpcwallet.cpp \
+           src/rpc/blockchain.cpp \
+           src/rpc/client.cpp \
+           src/rpc/dump.cpp \
+           src/rpc/budget.cpp \
+           src/rpc/masternode.cpp \
+           src/rpc/mining.cpp \
+           src/rpc/misc.cpp \
+           src/rpc/net.cpp \
+           src/rpc/protocol.cpp \
+           src/rpc/rawtransaction.cpp \
+           src/rpc/server.cpp \
+           src/rpc/wallet.cpp \
            src/spork.cpp \
            src/sync.cpp \
            src/timedata.cpp \
@@ -439,9 +439,9 @@ SOURCES += src/activemasternode.cpp \
            src/utilmoneystr.cpp \
            src/utilstrencodings.cpp \
            src/utiltime.cpp \
-           src/wallet.cpp \
-           src/wallet_ismine.cpp \
-           src/walletdb.cpp \
+           src/wallet/wallet.cpp \
+           src/wallet/wallet_ismine.cpp \
+           src/wallet/walletdb.cpp \
            src/compat/glibc_compat.cpp \
            src/compat/glibc_sanity.cpp \
            src/compat/glibcxx_compat.cpp \

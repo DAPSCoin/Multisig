@@ -9,7 +9,7 @@
 #define BITCOIN_RPCSERVER_H
 
 #include "amount.h"
-#include "rpcprotocol.h"
+#include "rpc/protocol.h"
 #include "uint256.h"
 
 #include <list>
@@ -273,9 +273,9 @@ extern UniValue multisend(const UniValue& params, bool fHelp);
 extern UniValue autocombinedust(const UniValue& params, bool fHelp);
 extern UniValue revealmnemonicphrase(const UniValue& params, bool fHelp);
 
-extern UniValue getrawtransaction(const UniValue& params, bool fHelp); // in rcprawtransaction.cpp
-extern UniValue addtowallet(const UniValue& params, bool fHelp); // in rcprawtransaction.cpp
-extern UniValue getrawtransactionbyblockheight(const UniValue& params, bool fHelp); // in rcprawtransaction.cpp
+extern UniValue getrawtransaction(const UniValue& params, bool fHelp); // in rcp/rawtransaction.cpp
+extern UniValue addtowallet(const UniValue& params, bool fHelp); // in rcp/rawtransaction.cpp
+extern UniValue getrawtransactionbyblockheight(const UniValue& params, bool fHelp); // in rcp/rawtransaction.cpp
 extern UniValue listunspent(const UniValue& params, bool fHelp);
 extern UniValue lockunspent(const UniValue& params, bool fHelp);
 extern UniValue listlockunspent(const UniValue& params, bool fHelp);
@@ -285,7 +285,7 @@ extern UniValue decodescript(const UniValue& params, bool fHelp);
 extern UniValue signrawtransaction(const UniValue& params, bool fHelp);
 extern UniValue sendrawtransaction(const UniValue& params, bool fHelp);
 
-extern UniValue getblockcount(const UniValue& params, bool fHelp); // in rpcblockchain.cpp
+extern UniValue getblockcount(const UniValue& params, bool fHelp); // in rpc/blockchain.cpp
 extern UniValue getbestblockhash(const UniValue& params, bool fHelp);
 extern UniValue getdifficulty(const UniValue& params, bool fHelp);
 extern UniValue settxfee(const UniValue& params, bool fHelp);
