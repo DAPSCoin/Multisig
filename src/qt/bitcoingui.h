@@ -133,6 +133,7 @@ private:
     QAction* instagramAction;
     QAction* redditAction;	
     QAction* showHelpMessageAction;
+	QAction* openBootStrapAction;
     QAction* openTGTechSupportAction;
     QAction* openTGMNSupportAction;
     QAction* openDiscordSupportAction;	
@@ -261,6 +262,7 @@ private slots:
     void aboutClicked();
     /** Show help message dialog */
     void showHelpMessageClicked();
+    void openBootStrapClicked();
 	void openTGTechSupportClicked();
     void openTGMNSupportClicked();
     void openDiscordSupportClicked();
