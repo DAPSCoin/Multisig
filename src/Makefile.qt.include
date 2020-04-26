@@ -170,7 +170,6 @@ BITCOIN_QT_H = \
   qt/multisigsetupchoosenumsigners.h \
   qt/multisigsetupfinish.h \
   qt/qgoogleauth.h \
-  qt/qgoogleauth_global.h \
   qt/addressbookpage.h \
   qt/addresstablemodel.h \
   qt/askpassphrasedialog.h \
