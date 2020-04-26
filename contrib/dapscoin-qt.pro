@@ -77,14 +77,13 @@ HEADERS += src/activemasternode.h \
            src/crypter.h \
            src/obfuscation-relay.h \
            src/obfuscation.h \
-           src/dapscoin-config.h \
+           src/config/dapscoin-config.h \
            src/wallet/db.h \
            src/eccryptoverify.h \
            src/ecwrapper.h \
            src/hash.h \
            src/init.h \
            src/swifttx.h \
-           src/keepass.h \
            src/key.h \
            src/keystore.h \
            src/leveldbwrapper.h \
@@ -106,11 +105,10 @@ HEADERS += src/activemasternode.h \
            src/protocol.h \
            src/pubkey.h \
            src/random.h \
-           src/rpcclient.h \
-           src/rpcprotocol.h \
-           src/rpcserver.h \
+           src/rpc/client.h \
+           src/rpc/protocol.h \
+           src/rpc/server.h \
            src/serialize.h \
-           src/spork.h \
            src/streams.h \
            src/sync.h \
            src/threadsafety.h \
@@ -128,7 +126,7 @@ HEADERS += src/activemasternode.h \
            src/version.h \
            src/wallet/wallet.h \
            src/wallet_ismine.h \
-           src/walletdb.h \
+           src/walet/walletdb.h \
            src/compat/sanity.h \
            src/config/dapscoin-config.h \
            src/crypto/common.h \
@@ -151,15 +149,6 @@ HEADERS += src/activemasternode.h \
            src/crypto/sph_simd.h \
            src/crypto/sph_skein.h \
            src/crypto/sph_types.h \
-           src/json/json_spirit.h \
-           src/json/json_spirit_error_position.h \
-           src/json/json_spirit_reader.h \
-           src/json/json_spirit_reader_template.h \
-           src/json/json_spirit_stream_reader.h \
-           src/json/json_spirit_utils.h \
-           src/json/json_spirit_value.h \
-           src/json/json_spirit_writer.h \
-           src/json/json_spirit_writer_template.h \
            src/obj/build.h \
            src/primitives/block.h \
            src/primitives/transaction.h \
@@ -174,7 +163,6 @@ HEADERS += src/activemasternode.h \
            src/qt/coincontroldialog.h \
            src/qt/coincontroltreewidget.h \
            src/qt/csvmodelwriter.h \
-           src/qt/obfuscationconfig.h \
            src/qt/editaddressdialog.h \
            src/qt/guiconstants.h \
            src/qt/guiutil.h \
@@ -267,7 +255,6 @@ HEADERS += src/activemasternode.h \
            src/leveldb/util/random.h \
            src/leveldb/util/testharness.h \
            src/leveldb/util/testutil.h \
-           src/qt/forms/ui_aboutdialog.h \
            src/qt/test/paymentrequestdata.h \
            src/qt/test/paymentservertests.h \
            src/qt/test/uritests.h \
@@ -344,7 +331,6 @@ HEADERS += src/activemasternode.h \
 FORMS += src/qt/forms/addressbookpage.ui \
          src/qt/forms/askpassphrasedialog.ui \
          src/qt/forms/coincontroldialog.ui \
-         src/qt/forms/obfuscationconfig.ui \
          src/qt/forms/editaddressdialog.ui \
          src/qt/forms/helpmessagedialog.ui \
          src/qt/forms/historypage.ui \
@@ -389,14 +375,13 @@ SOURCES += src/activemasternode.cpp \
            src/dapscoin-cli.cpp \
            src/dapscoin-tx.cpp \
            src/dapscoin.cpp \
-           src/db.cpp \
+           src/wallet/db.cpp \
            src/eccryptoverify.cpp \
            src/ecwrapper.cpp \
            src/editaddressdialog.cpp \
            src/hash.cpp \
            src/init.cpp \
            src/swifttx.cpp \
-           src/keepass.cpp \
            src/key.cpp \
            src/keystore.cpp \
            src/leveldbwrapper.cpp \
@@ -419,7 +404,7 @@ SOURCES += src/activemasternode.cpp \
            src/rest.cpp \
            src/rpc/blockchain.cpp \
            src/rpc/client.cpp \
-           src/rpc/dump.cpp \
+           src/wallet/rpcdump.cpp \
            src/rpc/budget.cpp \
            src/rpc/masternode.cpp \
            src/rpc/mining.cpp \
@@ -428,8 +413,7 @@ SOURCES += src/activemasternode.cpp \
            src/rpc/protocol.cpp \
            src/rpc/rawtransaction.cpp \
            src/rpc/server.cpp \
-           src/rpc/wallet.cpp \
-           src/spork.cpp \
+           src/wallet/rpcwallet.cpp \
            src/sync.cpp \
            src/timedata.cpp \
            src/txdb.cpp \
@@ -482,7 +466,6 @@ SOURCES += src/activemasternode.cpp \
            src/qt/coincontroldialog.cpp \
            src/qt/coincontroltreewidget.cpp \
            src/qt/csvmodelwriter.cpp \
-           src/qt/obfuscationconfig.cpp \
            src/qt/dapscoin.cpp \
            src/qt/dapscoinstrings.cpp \
            src/qt/editaddressdialog.cpp \

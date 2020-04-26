@@ -298,6 +298,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, const CPubKey& txP
             if (isDuplicate) continue;
             vecPriority.push_back(TxPriority(dPriority, feeRate, &mi->second.GetTx()));
         }
+		
         LogPrintf("Selecting %d transactions from mempool\n", vecPriority.size());
         // Collect transactions into block
         uint64_t nBlockSize = 1000;
@@ -656,9 +657,9 @@ void static ThreadBitcoinMiner(void* parg)
         }
         boost::this_thread::interruption_point();
     } catch (std::exception& e) {
-        LogPrintf("ThreadBitcoinMiner() exception");
+        LogPrintf("ThreadBitcoinMiner() exception\n");
     } catch (...) {
-        LogPrintf("ThreadBitcoinMiner() exception");
+        LogPrintf("ThreadBitcoinMiner() exception\n");
     }
 
     LogPrintf("ThreadBitcoinMiner exiting\n");
@@ -675,9 +676,9 @@ void static ThreadDapscoinMiner(void* parg)
     	}
         boost::this_thread::interruption_point();
     } catch (std::exception& e) {
-        LogPrintf("ThreadBitcoinMiner() exception");
+        LogPrintf("ThreadBitcoinMiner() exception\n");
     } catch (...) {
-        LogPrintf("ThreadBitcoinMiner() exception");
+        LogPrintf("ThreadBitcoinMiner() exception\n");
     }
 
     LogPrintf("ThreadBitcoinMiner exiting\n");
