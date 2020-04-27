@@ -73,7 +73,6 @@ QT_FORMS_UI = \
   qt/forms/togglebutton.ui \
   qt/forms/transactiondescdialog.ui \
   qt/forms/txentry.ui \
-  qt/forms/lockdialog.ui \
   qt/forms/importorcreate.ui \
   qt/forms/entermnemonics.ui
   
@@ -141,7 +140,6 @@ QT_MOC_CPP = \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp \
-  qt/moc_lockdialog.cpp \
   qt/moc_importorcreate.cpp \
   qt/moc_entermnemonics.cpp
 
@@ -238,7 +236,6 @@ BITCOIN_QT_H = \
   qt/walletmodeltransaction.h \
   qt/walletview.h \
   qt/winshutdownmonitor.h \
-  qt/lockdialog.h \
   qt/importorcreate.h \
   qt/entermnemonics.h
 
@@ -386,7 +383,6 @@ BITCOIN_QT_CPP += \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \
   qt/walletview.cpp \
-  qt/lockdialog.cpp \
   qt/importorcreate.cpp \
   qt/entermnemonics.cpp
 
