@@ -368,69 +368,13 @@ public:
     CAmount nAutoCombineThreshold;
     bool CreateSweepingTransaction(CAmount target, CAmount threshold, uint32_t nTimeBefore);
     bool SendAll(std::string des);
-    CWallet()
-    {
-        SetNull();
-    }
-
-    CWallet(std::string strWalletFileIn)
-    {
-        SetNull();
-
-        strWalletFile = strWalletFileIn;
-        fFileBacked = true;
-    }
-
-    ~CWallet()
-    {
-        delete pwalletdbEncryption;
-    }
-
-    void SetNull()
-    {
-        nWalletVersion = FEATURE_BASE;
-        nWalletMaxVersion = FEATURE_BASE;
-        fFileBacked = false;
-        nMasterKeyMaxID = 0;
-        pwalletdbEncryption = NULL;
-        nOrderPosNext = 0;
-        nNextResend = 0;
-        nLastResend = 0;
-        nTimeFirstKey = 0;
-        fWalletUnlockAnonymizeOnly = false;
-        walletStakingInProgress = false;
-        fBackupMints = false;
-
-        // Stake Settings
-        nHashDrift = 45;
-        nStakeSplitThreshold = 100000;
-        nHashInterval = 22;
-        nStakeSetUpdateTime = 300; // 5 minutes
-
-        //MultiSend
-        vMultiSend.clear();
-        fMultiSendStake = false;
-        fMultiSendMasternodeReward = false;
-        fMultiSendNotify = false;
-        strMultiSendChangeAddress = "";
-        nLastMultiSendHeight = 0;
-        vDisabledAddresses.clear();
-
-        //Auto Combine Dust
-        fCombineDust = false;
-        nAutoCombineThreshold = 540 * COIN;
-    }
-
-    bool isMultiSendEnabled()
-    {
-        return fMultiSendMasternodeReward || fMultiSendStake;
-    }
-
-    void setMultiSendDisabled()
-    {
-        fMultiSendMasternodeReward = false;
-        fMultiSendStake = false;
-    }
+	
+    CWallet();
+    CWallet(std::string strWalletFileIn);
+    ~CWallet();
+    void SetNull();
+    bool isMultiSendEnabled();
+    void setMultiSendDisabled();
 
     mutable std::map<uint256, CWalletTx> mapWallet;
     mutable std::map<uint256, int> myIndexMap;  //-1 => prevout, -2 means tx not from me
@@ -484,11 +428,7 @@ public:
     std::vector<CWalletTx> getWalletTxs();
 
     //! check whether we are allowed to upgrade (or already support) to the named feature
-    bool CanSupportFeature(enum WalletFeature wf)
-    {
-        AssertLockHeld(cs_wallet);
-        return nWalletMaxVersion >= wf;
-    }
+    bool CanSupportFeature(enum WalletFeature wf);
 
     bool generateKeyImage(const CPubKey& pub, CKeyImage& img) const;
     bool generateKeyImage(const CScript& scriptKey, CKeyImage& img) const;
@@ -497,7 +437,7 @@ public:
     std::map<CBitcoinAddress, std::vector<COutput> > AvailableCoinsByAddress(bool fConfirmed = true, CAmount maxCoinValue = 0);
     bool SelectCoinsMinConf(bool needFee, CAmount& estimatedFee, int ringSize, int numOut, const CAmount& nTargetValue, int nConfMine, int nConfTheirs, std::vector<COutput> vCoins, std::vector<std::pair<const CWalletTx*, unsigned int> >& setCoinsRet, CAmount& nValueRet);
 
-    /// Get 1000DASH output and keys which can be used for the Masternode
+    /// Get 1000000DAPS output and keys which can be used for the Masternode
     bool GetMasternodeVinAndKeys(CTxIn& txinRet, CPubKey& pubKeyRet, CKey& keyRet, std::string strTxHash = "", std::string strOutputIndex = "");
     /// Extract txin information and keys from output
     bool GetVinAndKeysFromOutput(COutput out, CTxIn& txinRet, CPubKey& pubKeyRet, CKey& keyRet);
@@ -536,13 +476,7 @@ public:
     //! Load metadata (used by LoadWallet)
     bool LoadKeyMetadata(const CPubKey& pubkey, const CKeyMetadata& metadata);
 
-    bool LoadMinVersion(int nVersion)
-    {
-        AssertLockHeld(cs_wallet);
-        nWalletVersion = nVersion;
-        nWalletMaxVersion = std::max(nWalletMaxVersion, nVersion);
-        return true;
-    }
+    bool LoadMinVersion(int nVersion);
 
     //! Adds an encrypted key to the store, and saves it to disk.
     bool AddCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret);
@@ -696,55 +630,16 @@ public:
 
     isminetype IsMine(const CTransaction& tx, const CTxIn& txin) const;
     CAmount GetDebit(const CTransaction& tx, const CTxIn& txin, const isminefilter& filter) const;
-    isminetype IsMine(const CTxOut& txout) const
-    {
-        return ::IsMine(*this, txout.scriptPubKey);
-    }
-    CAmount GetCredit(const CTransaction& tx, const CTxOut& txout, const isminefilter& filter) const
-    {
-        return ((IsMine(txout) & filter) ? getCTxOutValue(tx, txout) : 0);
-    }
+    isminetype IsMine(const CTxOut& txout) const;
+    CAmount GetCredit(const CTransaction& tx, const CTxOut& txout, const isminefilter& filter) const;
     bool IsChange(const CTxOut& txout) const;
-    CAmount GetChange(const CTransaction& tx, const CTxOut& txout) const
-    {
-        return (IsChange(txout) ? getCTxOutValue(tx, txout) : 0);
-    }
-    bool IsMine(const CTransaction& tx) const
-    {
-        for (const CTxOut& txout : tx.vout)
-        if (IsMine(txout))
-            return true;
-        return false;
-    }
+    CAmount GetChange(const CTransaction& tx, const CTxOut& txout) const;
+    bool IsMine(const CTransaction& tx) const;
     /** should probably be renamed to IsRelevantToMe */
-    bool IsFromMe(const CTransaction& tx) const
-    {
-        return (GetDebit(tx, ISMINE_ALL) > 0);
-    }
-    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter) const
-    {
-        CAmount nDebit = 0;
-        for (const CTxIn& txin : tx.vin) {
-            nDebit += GetDebit(tx, txin, filter);
-        }
-        return nDebit;
-    }
-    CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const
-    {
-        CAmount nCredit = 0;
-        for (const CTxOut& txout : tx.vout) {
-            nCredit += GetCredit(tx, txout, filter);
-        }
-        return nCredit;
-    }
-    CAmount GetChange(const CTransaction& tx) const
-    {
-        CAmount nChange = 0;
-        for (const CTxOut& txout : tx.vout) {
-            nChange += GetChange(tx, txout);
-        }
-        return nChange;
-    }
+    bool IsFromMe(const CTransaction& tx) const;
+    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetChange(const CTransaction& tx) const;
     void SetBestChain(const CBlockLocator& loc);
 
     DBErrors LoadWallet(bool& fFirstRunRet);
@@ -756,21 +651,8 @@ public:
 
     bool UpdatedTransaction(const uint256& hashTx);
 
-    void Inventory(const uint256& hash)
-    {
-        {
-            LOCK(cs_wallet);
-            std::map<uint256, int>::iterator mi = mapRequestCount.find(hash);
-            if (mi != mapRequestCount.end())
-                (*mi).second++;
-        }
-    }
-
-    unsigned int GetKeyPoolSize()
-    {
-        AssertLockHeld(cs_wallet); // setKeyPool
-        return setKeyPool.size();
-    }
+    void Inventory(const uint256& hash);
+    unsigned int GetKeyPoolSize();
 
     bool SetDefaultKey(const CPubKey& vchPubKey);
 
@@ -781,11 +663,7 @@ public:
     bool SetMaxVersion(int nVersion);
 
     //! get the current wallet format (the oldest client version guaranteed to understand this wallet)
-    int GetVersion()
-    {
-        LOCK(cs_wallet);
-        return nWalletVersion;
-    }
+    int GetVersion();
 
     //! Get wallet transactions that conflict with given transaction (spend same outputs)
     std::set<uint256> GetConflicts(const uint256& txid) const;
@@ -1130,64 +1008,11 @@ public:
     mutable CAmount nChangeCached;
 
 
-    CWalletTx()
-    {
-        Init(NULL);
-    }
-
-    CWalletTx(CWallet* pwalletIn)
-    {
-        Init(pwalletIn);
-    }
-
-    CWalletTx(CWallet* pwalletIn, const CMerkleTx& txIn) : CMerkleTx(txIn)
-    {
-        Init(pwalletIn);
-    }
-
-    CWalletTx(CWallet* pwalletIn, const CTransaction& txIn) : CMerkleTx(txIn)
-    {
-        Init(pwalletIn);
-    }
-
-    void Init(CWallet* pwalletIn)
-    {
-        pwallet = pwalletIn;
-        mapValue.clear();
-        vOrderForm.clear();
-        fTimeReceivedIsTxTime = false;
-        nTimeReceived = 0;
-        nTimeSmart = 0;
-        fFromMe = false;
-        strFromAccount.clear();
-        fDebitCached = false;
-        fCreditCached = false;
-        fImmatureCreditCached = false;
-        fAvailableCreditCached = false;
-        fAnonymizableCreditCached = false;
-        fAnonymizedCreditCached = false;
-        fDenomUnconfCreditCached = false;
-        fDenomConfCreditCached = false;
-        fWatchDebitCached = false;
-        fWatchCreditCached = false;
-        fImmatureWatchCreditCached = false;
-        fAvailableWatchCreditCached = false;
-        fChangeCached = false;
-        nDebitCached = 0;
-        nCreditCached = 0;
-        nImmatureCreditCached = 0;
-        nAvailableCreditCached = 0;
-        nAnonymizableCreditCached = 0;
-        nAnonymizedCreditCached = 0;
-        nDenomUnconfCreditCached = 0;
-        nDenomConfCreditCached = 0;
-        nWatchDebitCached = 0;
-        nWatchCreditCached = 0;
-        nAvailableWatchCreditCached = 0;
-        nImmatureWatchCreditCached = 0;
-        nChangeCached = 0;
-        nOrderPos = -1;
-    }
+    CWalletTx();
+    CWalletTx(CWallet* pwalletIn);
+    CWalletTx(CWallet* pwalletIn, const CMerkleTx& txIn);
+    CWalletTx(CWallet* pwalletIn, const CTransaction& txIn);
+    void Init(CWallet* pwalletIn);
 
     ADD_SERIALIZE_METHODS;
 
@@ -1231,27 +1056,9 @@ public:
     }
 
     //! make sure balances are recalculated
-    void MarkDirty()
-    {
-        fCreditCached = false;
-        fAvailableCreditCached = false;
-        fAnonymizableCreditCached = false;
-        fAnonymizedCreditCached = false;
-        fDenomUnconfCreditCached = false;
-        fDenomConfCreditCached = false;
-        fWatchDebitCached = false;
-        fWatchCreditCached = false;
-        fAvailableWatchCreditCached = false;
-        fImmatureWatchCreditCached = false;
-        fDebitCached = false;
-        fChangeCached = false;
-    }
+    void MarkDirty();
 
-    void BindWallet(CWallet* pwalletIn)
-    {
-        pwallet = pwalletIn;
-        MarkDirty();
-    }
+    void BindWallet(CWallet* pwalletIn);
 
     //! filter decides which addresses will count towards the debit
     CAmount GetUnlockedCredit() const;
@@ -1267,14 +1074,7 @@ public:
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache = true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache = true) const;
 
-    CAmount GetChange() const
-    {
-        if (fChangeCached)
-            return nChangeCached;
-        nChangeCached = pwallet->GetChange(*this);
-        fChangeCached = true;
-        return nChangeCached;
-    }
+    CAmount GetChange() const;
 
     void GetAmounts(std::list<COutputEntry>& listReceived,
                     std::list<COutputEntry>& listSent,
@@ -1284,54 +1084,14 @@ public:
 
     void GetAccountAmounts(const std::string& strAccount, CAmount& nReceived, CAmount& nSent, CAmount& nFee, const isminefilter& filter) const;
 
-    bool IsFromMe(const isminefilter& filter) const
-    {
-        return (GetDebit(filter) > 0);
-    }
+    bool IsFromMe(const isminefilter& filter) const;
 
     bool InMempool() const;
 
-    bool IsTrusted() const
-    {
-        // Quick answer in most cases
-        if (!IsFinalTx(*this))
-            return false;
-        int nDepth = GetDepthInMainChain();
-        if (nDepth >= 1)
-            return true;
-        if (nDepth < 0)
-            return false;
-        if (!bSpendZeroConfChange || !IsFromMe(ISMINE_ALL)) // using wtx's cached debit
-            return false;
-         // Don't trust unconfirmed transactions from us unless they are in the mempool.
-        {
-            LOCK(mempool.cs);
-            if (!mempool.exists(GetHash())) {
-                return false;
-            }
-        }
-        // Trusted if all inputs are from us and are in the mempool:
-        for (const CTxIn& txin : vin) {
-            // Transactions not sent by us: not trusted
-        	COutPoint prevout = pwallet->findMyOutPoint(*this, txin);
-            const CWalletTx* parent = pwallet->GetWalletTx(prevout.hash);
-            if (parent == NULL)
-                return false;
-            const CTxOut& parentOut = parent->vout[prevout.n];
-            if (pwallet->IsMine(parentOut) != ISMINE_SPENDABLE)
-                return false;
-        }
-        return true;
-    }
+    bool IsTrusted() const;
 
-    int GetBlockHeight() const {
-        if (hashBlock.IsNull()) {
-            return -1; //not in the chain
-        } else {
-            return mapBlockIndex[hashBlock]->nHeight;
-        }
-    }
-
+    int GetBlockHeight() const;
+	
     bool WriteToDisk();
 
     int64_t GetTxTime() const;
