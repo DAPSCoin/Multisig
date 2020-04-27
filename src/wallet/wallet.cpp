@@ -4571,7 +4571,7 @@ bool CWallet::IsMine(const COutPoint outpoint) const {
 
 bool CWallet::selectDecoysAndRealIndex(CPartialTransaction& tx, int& myIndex, int ringSize)
 {
-    LogPrintf("Selecting coinbase decoys\n");
+    LogPrintf("Selecting coinbase decoys for transaction\n");
     if (coinbaseDecoysPool.size() <= 100) {
         for (int i = chainActive.Height() - Params().COINBASE_MATURITY(); i > 0; i--) {
             if (coinbaseDecoysPool.size() > 100) break;
@@ -6594,7 +6594,7 @@ bool CWallet::SendToStealthAddress(CPartialTransaction& ptx, const std::string& 
     string strError;
     if (this->IsLocked()) {
         strError = "Error: Wallet locked, unable to create transaction!";
-        LogPrintf("SendToStealthAddress() : %s", strError);
+        LogPrintf("SendToStealthAddress() : %s\n", strError);
         throw runtime_error(strError);
     }
 
@@ -7005,7 +7005,7 @@ void CWallet::createMasterKey() const
                 i++;
                 continue;
             }
-            LogPrintf("Created master account");
+            LogPrintf("Created master account\n");
             break;
         }
 
