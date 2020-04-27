@@ -302,7 +302,7 @@ QModelIndex AddressTableModel::index(int row, int column, const QModelIndex& par
     Q_UNUSED(parent);
     AddressTableEntry* data = priv->index(row);
     if (data) {
-        return createIndex(row, column, priv->index(row));
+        return createIndex(row, data);
     } else {
         return QModelIndex();
     }
