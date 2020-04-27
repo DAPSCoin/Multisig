@@ -5943,7 +5943,7 @@ void CWallet::AutoCombineDust()
 bool CWallet::estimateStakingConsolidationFees(CAmount& minFee, CAmount& maxFee) {
     //finding all spendable UTXOs < MIN_STAKING
     CAmount total = 0;
-	vector<COutput> vCoins, underStakingThresholdCoins;
+	std::vector<COutput> vCoins, underStakingThresholdCoins;
 	{
 		LOCK2(cs_main, cs_wallet);
 		{
