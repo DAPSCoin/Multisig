@@ -41,7 +41,6 @@
 #endif
 
 #include "encryptdialog.h"
-#include "unlockdialog.h"
 #include "multisigsetupchoosenumsigners.h"
 #include "multisigsetupaddsigner.h"
 #include "multisigsetupfinish.h"
@@ -504,13 +503,8 @@ void BitcoinApplication::initializeResult(int retval)
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
         if (pwalletMain) {
             if (walletModel->getEncryptionStatus() == WalletModel::Locked) {
-                UnlockDialog unlockdlg;
-                unlockdlg.setWindowTitle("Unlock Keychain Wallet");
-                unlockdlg.setModel(walletModel);
-                unlockdlg.setStyleSheet(GUIUtil::loadStyleSheet());
-                unlockdlg.setWindowFlags(Qt::WindowStaysOnTopHint);
-                if (unlockdlg.exec() != QDialog::Accepted)
-                    QApplication::quit();
+                WalletModel::UnlockContext ctx(walletModel->requestUnlock(AskPassphraseDialog::Context::Unlock_Full, true));
+                if (ctx.isValid()) {
                 walletUnlocked = true;
                 emit requestedRegisterNodeSignal();
             }
