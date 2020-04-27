@@ -1107,8 +1107,9 @@ void BitcoinGUI::setNumBlocks(int count)
         tooltip += QString("<br>");
         tooltip += tr("Transactions after this will not yet be visible.");
     }
-	
-	if (IsInitialBlockDownload()) {
+    if (count == 0) {
+        blockCount->setText(tr("Loading Blocks..."));
+    } else if (IsInitialBlockDownload()) {
         blockCount->setText(tr("Syncing Blocks..."));
     } else {
         blockCount->setText(tr("%n Blocks", "", count));
