@@ -9,7 +9,7 @@
 #include <QBuffer>
 #include <QWidget>
 
-#undef Q_SLOTS
+#undef slots
 #include <Cocoa/Cocoa.h>
 #include <AppKit/AppKit.h>
 #include <objc/runtime.h>

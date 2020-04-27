@@ -1578,9 +1578,9 @@
    <extends>QWidget</extends>
    <header>trafficgraphwidget.h</header>
    <container>1</container>
-   <Q_SLOTS>
+   <slots>
     <slot>clear()</slot>
-   </Q_SLOTS>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>
