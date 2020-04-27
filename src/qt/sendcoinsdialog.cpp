@@ -224,7 +224,19 @@ void SendCoinsDialog::on_sendButton_clicked(){
         msgBox.exec();
         return;
     }
-
+	
+	// request unlock only if was locked or unlocked for mixing:
+    // this way we let users unlock by walletpassphrase or by menu
+    // and make many transactions while unlocking through this dialog
+    // will call relock
+    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
+        WalletModel::UnlockContext ctx(model->requestUnlock(AskPassphraseDialog::Context::Send, true));
+        if (!ctx.isValid()) {
+            // Unlock wallet was cancelled
+            return;
+		}
+	}
     QMessageBox::StandardButton reply;
     if (!pwalletMain->HasPendingTx()) {
         reply = QMessageBox::question(this, "Are You Sure?", "Are you sure you would like to send this transaction?", QMessageBox::Yes|QMessageBox::No);
