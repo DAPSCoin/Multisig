@@ -870,6 +870,15 @@ void InitParameterInteraction()
     }
 }
 
+void InitLogging()
+{
+    fPrintToConsole = GetBoolArg("-printtoconsole", false);
+    fLogTimestamps = GetBoolArg("-logtimestamps", true);
+    fLogIPs = GetBoolArg("-logips", false);
+
+    LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    LogPrintf("DAPS version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
+}
 /** Initialize daps.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -880,14 +889,6 @@ bool AppInit2(bool isDaemon)
         return false;
 
     // ********************************************************* Step 2: parameter interactions
-    // Set this early so that parameter interactions go to console
-    fPrintToConsole = GetBoolArg("-printtoconsole", false);
-    fLogTimestamps = GetBoolArg("-logtimestamps", true);
-    fLogIPs = GetBoolArg("-logips", false);
-
-    LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("DAPS version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
-	
 #ifdef ENABLE_WALLET
     if (mapArgs.count("-reservebalance")) {
         if (!ParseMoney(mapArgs["-reservebalance"], nReserveBalance)) {
@@ -1048,8 +1049,7 @@ bool AppInit2(bool isDaemon)
 #endif
     if (GetBoolArg("-shrinkdebugfile", !fDebug))
         ShrinkDebugFile();
-    LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("DAPS version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
+
     LogPrintf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
 #ifdef ENABLE_WALLET
     LogPrintf("Using BerkeleyDB version %s\n", DbEnv::version(0, 0, 0));
@@ -1159,7 +1159,7 @@ bool AppInit2(bool isDaemon)
             // Delete the local blockchain folders to force a resync from scratch to get a consitent blockchain-state
             filesystem::path blocksDir = GetDataDir() / "blocks";
             filesystem::path chainstateDir = GetDataDir() / "chainstate";
-            
+
             // We delete in 4 individual steps in case one of the folder is missing already
             try {
                 if (filesystem::exists(blocksDir)){
@@ -1494,7 +1494,7 @@ bool AppInit2(bool isDaemon)
 
                     filesystem::path blocksDir = GetDataDir() / "blocks";
                     filesystem::path chainstateDir = GetDataDir() / "chainstate";
-                    
+
                     // We delete in 4 individual steps in case one of the folder is missing already
                     try {
                         if (filesystem::exists(blocksDir)){
@@ -1506,13 +1506,13 @@ bool AppInit2(bool isDaemon)
                             boost::filesystem::remove_all(chainstateDir);
                             LogPrintf("-resync: folder deleted: %s\n", chainstateDir.string().c_str());
                         }
-                        
+
                         boost::filesystem::create_directories(blocksDir);
                         boost::filesystem::create_directories(chainstateDir);
                     } catch (boost::filesystem::filesystem_error& error) {
                         LogPrintf("Failed to delete blockchain folders %s\n", error.what());
                     }
-                    
+
                 } else {
                     LogPrintf("Aborted block database rebuild. Exiting.\n");
                     return false;
@@ -1607,7 +1607,7 @@ bool AppInit2(bool isDaemon)
                 if (!isDaemon) {
                     uiInterface.ShowRecoveryDialog();
                 }
-                
+
                 if (!pwalletMain->IsHDEnabled()) {
                     // generate a new master key
                     pwalletMain->GenerateNewHDChain();
@@ -1909,7 +1909,7 @@ bool AppInit2(bool isDaemon)
 
         // Run a thread to flush wallet periodically
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
-		
+
         storedStakingStatus = pwalletMain->ReadStakingStatus();
         if (GetBoolArg("-staking", false) || storedStakingStatus) {
             fGenerateDapscoins = true;
