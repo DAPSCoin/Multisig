@@ -37,7 +37,7 @@ public:
     bool fSplitBlock;
     void updateKeyImageButtons();
 
-private slots:
+private Q_SLOTS:
     void generateKeyImageHex();
     void syncKeyImages();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance,
@@ -48,7 +48,7 @@ private:
     ClientModel* clientModel;
     WalletModel* model;
 
-signals:
+Q_SIGNALS:
 
 };
 

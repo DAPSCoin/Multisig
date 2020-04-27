@@ -9,7 +9,7 @@
 #include <QBuffer>
 #include <QWidget>
 
-#undef slots
+#undef Q_SLOTS
 #include <Cocoa/Cocoa.h>
 #include <AppKit/AppKit.h>
 #include <objc/runtime.h>
@@ -121,5 +121,5 @@ void MacDockIconHandler::handleDockIconClickEvent()
         this->mainWindow->show();
     }
 
-    emit this->dockIconClicked();
+    Q_EMIT this->dockIconClicked();
 }

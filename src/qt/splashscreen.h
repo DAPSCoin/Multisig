@@ -27,7 +27,7 @@ protected:
     void paintEvent(QPaintEvent* event);
     void closeEvent(QCloseEvent* event);
 
-public slots:
+public Q_SLOTS:
     /** Slot to call finish() method as it's not defined as slot */
     void slotFinish(QWidget* mainWin);
 
@@ -35,9 +35,9 @@ public slots:
     void showMessage(const QString& message, int alignment, const QColor& color);
 
 private:
-    /** Connect core signals to splash screen */
+    /** Connect core Q_SIGNALS to splash screen */
     void subscribeToCoreSignals();
-    /** Disconnect core signals to splash screen */
+    /** Disconnect core Q_SIGNALS to splash screen */
     void unsubscribeFromCoreSignals();
 
     QPixmap pixmap;

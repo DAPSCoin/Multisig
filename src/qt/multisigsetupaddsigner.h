@@ -17,7 +17,7 @@ public:
     ~MultiSigSetupAddSigner();
 
     void setModel(WalletModel* model);
-private slots:
+private Q_SLOTS:
 	void on_btnBack();
 	void on_btnNext();
 

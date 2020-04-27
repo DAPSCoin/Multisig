@@ -14,18 +14,18 @@ class PaymentServerTests : public QObject
 {
     Q_OBJECT
 
-private slots:
+private Q_SLOTS:
     void paymentServerTests();
 };
 
-// Dummy class to receive paymentserver signals.
+// Dummy class to receive paymentserver Q_SIGNALS.
 // If SendCoinsRecipient was a proper QObject, then
 // we could use QSignalSpy... but it's not.
 class RecipientCatcher : public QObject
 {
     Q_OBJECT
 
-public slots:
+public Q_SLOTS:
     void getRecipient(SendCoinsRecipient r);
 
 public:

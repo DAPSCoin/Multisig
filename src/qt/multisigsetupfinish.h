@@ -17,7 +17,7 @@ public:
     ~MultiSigSetupFinish();
 
     void setModel(WalletModel* model);
-private slots:
+private Q_SLOTS:
 	void on_btnDone();
 
 private:

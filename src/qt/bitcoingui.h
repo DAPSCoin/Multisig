@@ -174,18 +174,18 @@ private:
     /** Enable or disable all wallet-related actions */
     void setWalletActionsEnabled(bool enabled);
 
-    /** Connect core signals to GUI client */
+    /** Connect core Q_SIGNALS to GUI client */
     void subscribeToCoreSignals();
-    /** Disconnect core signals from GUI client */
+    /** Disconnect core Q_SIGNALS from GUI client */
     void unsubscribeFromCoreSignals();
 
-signals:
+Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString& uri);
     /** Restart handling */
     void requestedRestart(QStringList args);
 
-public slots:
+public Q_SLOTS:
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
     /** Set number of blocks shown in the UI */
@@ -218,7 +218,7 @@ public slots:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& confirmations);
 #endif // ENABLE_WALLET
 
-private slots:
+private Q_SLOTS:
 #ifdef ENABLE_WALLET
     /** Switch to overview (home) page */
     void gotoOverviewPage();
@@ -294,7 +294,7 @@ class UnitDisplayStatusBarControl : public QLabel
 
 public:
     explicit UnitDisplayStatusBarControl();
-    /** Lets the control know about the Options Model (and its signals) */
+    /** Lets the control know about the Options Model (and its Q_SIGNALS) */
     void setOptionsModel(OptionsModel* optionsModel);
 
 protected:
@@ -307,10 +307,10 @@ private:
 
     /** Shows context menu with Display Unit options by the mouse coordinates */
     void onDisplayUnitsClicked(const QPoint& point);
-    /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
+    /** Creates context menu, its actions, and wires up all the relevant Q_SIGNALS for mouse events. */
     void createContextMenu();
 
-private slots:
+private Q_SLOTS:
     /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
     void updateDisplayUnit(int newUnits);
     /** Tells underlying optionsModel to update its current display unit. */

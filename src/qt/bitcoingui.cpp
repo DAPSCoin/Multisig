@@ -916,7 +916,7 @@ void BitcoinGUI::openClicked()
 {
     OpenURIDialog dlg(this);
     if (dlg.exec()) {
-        emit receivedURI(dlg.getURI());
+        Q_EMIT receivedURI(dlg.getURI());
     }
 }
 
@@ -1240,8 +1240,8 @@ bool BitcoinGUI::eventFilter(QObject *obj, QEvent *event)
 void BitcoinGUI::dropEvent(QDropEvent* event)
 {
     if (event->mimeData()->hasUrls()) {
-        foreach (const QUrl& uri, event->mimeData()->urls()) {
-            emit receivedURI(uri.toString());
+        Q_FOREACH (const QUrl& uri, event->mimeData()->urls()) {
+            Q_EMIT receivedURI(uri.toString());
         }
     }
     event->acceptProposedAction();
@@ -1358,13 +1358,13 @@ void BitcoinGUI::exitApp(){
 
 void BitcoinGUI::subscribeToCoreSignals()
 {
-    // Connect signals to client
+    // Connect Q_SIGNALS to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
 }
 
 void BitcoinGUI::unsubscribeFromCoreSignals()
 {
-    // Disconnect signals from client
+    // Disconnect Q_SIGNALS from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
 }
 
@@ -1372,7 +1372,7 @@ void BitcoinGUI::unsubscribeFromCoreSignals()
 void BitcoinGUI::handleRestart(QStringList args)
 {
     if (!ShutdownRequested())
-        emit requestedRestart(args);
+        Q_EMIT requestedRestart(args);
 }
 
 UnitDisplayStatusBarControl::UnitDisplayStatusBarControl() : optionsModel(0),
@@ -1388,12 +1388,12 @@ void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent* event)
     onDisplayUnitsClicked(event->pos());
 }
 
-/** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
+/** Creates context menu, its actions, and wires up all the relevant Q_SIGNALS for mouse events. */
 void UnitDisplayStatusBarControl::createContextMenu()
 {
     menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
-    foreach (BitcoinUnits::Unit u, BitcoinUnits::availableUnits()) {
+    Q_FOREACH (BitcoinUnits::Unit u, BitcoinUnits::availableUnits()) {
         QAction* menuAction = new QAction(QString(BitcoinUnits::name(u)), this);
         menuAction->setData(QVariant(u));
         menu->addAction(menuAction);
@@ -1401,7 +1401,7 @@ void UnitDisplayStatusBarControl::createContextMenu()
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(onMenuSelection(QAction*)));
 }
 
-/** Lets the control know about the Options Model (and its signals) */
+/** Lets the control know about the Options Model (and its Q_SIGNALS) */
 void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel* optionsModel)
 {
     if (optionsModel) {

@@ -75,7 +75,7 @@ void HistoryPage::initWidgets()
     ui->horizontalLayout_2->setAlignment(Qt::AlignTop);
 }
 
-void HistoryPage::connectWidgets() //add functions to widget signals
+void HistoryPage::connectWidgets() //add functions to widget Q_SIGNALS
 {
     connect(ui->dateTimeEditTo, SIGNAL(dateChanged(const QDate&)), this, SLOT(updateFilter()));
     connect(ui->dateTimeEditFrom, SIGNAL(dateChanged(const QDate&)), this, SLOT(updateFilter()));

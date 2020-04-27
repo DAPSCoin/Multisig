@@ -73,7 +73,7 @@ CoinControlDialog::CoinControlDialog(QWidget* parent, bool fMultisigEnabled) : Q
     contextMenu->addAction(lockAction);
     contextMenu->addAction(unlockAction);
 
-    // context menu signals
+    // context menu Q_SIGNALS
     connect(ui->treeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showMenu(QPoint)));
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(copyAddress()));
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
@@ -529,7 +529,7 @@ void CoinControlDialog::updateLabels(WalletModel* model, QDialog* dialog)
     CAmount nPayAmount = 0;
     bool fDust = false;
     CMutableTransaction txDummy;
-    foreach (const CAmount& amount, CoinControlDialog::payAmounts) {
+    Q_FOREACH (const CAmount& amount, CoinControlDialog::payAmounts) {
         nPayAmount += amount;
 
         if (amount > 0) {

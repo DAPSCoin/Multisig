@@ -6,7 +6,7 @@
 
 #include "macnotificationhandler.h"
 
-#undef slots
+#undef Q_SLOTS
 #import <objc/runtime.h>
 #include <Cocoa/Cocoa.h>
 

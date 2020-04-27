@@ -41,7 +41,7 @@ public:
     bool fSplitBlock;
     void FillExistingTxHexCode();
 
-public slots:
+public Q_SLOTS:
     SendCoinsEntry* addEntry();
 
 private:
@@ -56,7 +56,7 @@ private:
 private:
     CPartialTransaction sendTx();
     
-private slots:
+private Q_SLOTS:
     void dialogIsFinished(int result);
     void on_sendButton_clicked();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, 
@@ -76,7 +76,7 @@ private slots:
     void coinControlClipboardChange();
 
     void on_copyButton_Clicked();
-signals:
+Q_SIGNALS:
 
 };
 
