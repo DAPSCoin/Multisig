@@ -2858,7 +2858,7 @@ static CCheckQueue<CScriptCheck> scriptcheckqueue(128);
 
 void ThreadScriptCheck()
 {
-    RenameThread("dapscoin-scriptch");
+    util::ThreadRename("dapscoin-scriptch");
     scriptcheckqueue.Thread();
 }
 
