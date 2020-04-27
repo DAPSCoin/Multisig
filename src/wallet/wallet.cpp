@@ -2278,7 +2278,7 @@ bool CWallet::AvailableCoins(const uint256 wtxid, const CWalletTx* pcoin, vector
 
 map<CBitcoinAddress, vector<COutput> > CWallet::AvailableCoinsByAddress(bool fConfirmed, CAmount maxCoinValue)
 {
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
     AvailableCoins(vCoins, fConfirmed);
 
     map<CBitcoinAddress, vector<COutput> > mapCoins;
@@ -2364,7 +2364,7 @@ bool less_then_denom(const COutput& out1, const COutput& out2)
 
 bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int> >& setCoins, CAmount nTargetAmount)
 {
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
     AvailableCoins(vCoins, true, NULL, false, STAKABLE_COINS);
     CAmount nAmountSelected = 0;
 
@@ -2393,7 +2393,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
 
 bool CWallet::MintableCoins()
 {
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
 
     {
         LOCK2(cs_main, cs_wallet);
@@ -2603,7 +2603,7 @@ void CWallet::resetPendingOutPoints()
 bool CWallet::SelectCoins(bool needFee, CAmount& estimatedFee, int ringSize, int numOut, const CAmount& nTargetValue, std::vector<pair<const CWalletTx*, unsigned int> >& setCoinsRet, CAmount& nValueRet, const CCoinControl* coinControl, AvailableCoinsType coin_type, bool useIX)
 {
     // Note: this function should never be used for "always free" tx types like dstx
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
     vCoins.clear();
 
     {
@@ -2693,7 +2693,7 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, CAmount nValueMin, CAmount 
     nValueRet = 0;
 
     vCoinsRet2.clear();
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
     AvailableCoins(vCoins, true, NULL, false, ONLY_DENOMINATED);
 
     std::random_shuffle(vCoins.rbegin(), vCoins.rend());
@@ -2813,7 +2813,7 @@ bool CWallet::SelectCoinsDark(CAmount nValueMin, CAmount nValueMax, std::vector<
     setCoinsRet.clear();
     nValueRet = 0;
 
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
     AvailableCoins(vCoins, true, coinControl, false, nObfuscationRoundsMin < 0 ? ONLY_NONDENOMINATED_NOT1000000IFMN : ONLY_DENOMINATED);
 
     set<pair<const CWalletTx*, unsigned int> > setCoinsRet2;
@@ -2852,7 +2852,7 @@ bool CWallet::SelectCoinsDark(CAmount nValueMin, CAmount nValueMax, std::vector<
 
 bool CWallet::SelectCoinsCollateral(std::vector<CTxIn>& setCoinsRet, CAmount& nValueRet)
 {
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
 
     AvailableCoins(vCoins);
 
@@ -2904,7 +2904,7 @@ int CWallet::CountInputsWithAmount(CAmount nInputAmount)
 
 bool CWallet::HasCollateralInputs(bool fOnlyConfirmed)
 {
-    vector<COutput> vCoins;
+    std::vector<COutput> vCoins;
     AvailableCoins(vCoins, fOnlyConfirmed);
 
     int nFound = 0;
