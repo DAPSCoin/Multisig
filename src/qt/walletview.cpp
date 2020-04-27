@@ -21,7 +21,6 @@
 #include "receivecoinsdialog.h"
 #include "keyimagesync.h"
 #include "sendcoinsdialog.h"
-#include "keyimagesync.h"
 #include "signverifymessagedialog.h"
 #include "transactiontablemodel.h"
 #include "cosigntransaction.h"
@@ -48,7 +47,7 @@ WalletView::WalletView(QWidget* parent) : QStackedWidget(parent),
     overviewPage = new OverviewPage();
     explorerWindow = new BlockExplorer(this);
     transactionsPage = new QWidget(this);
-    QVBoxLayout* vbox = new QVBoxLayout(this);
+    QVBoxLayout* vbox = new QVBoxLayout();
     QHBoxLayout* hbox_buttons = new QHBoxLayout();
     transactionView = new TransactionView(this);
     vbox->addWidget(transactionView);
