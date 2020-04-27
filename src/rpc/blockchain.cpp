@@ -190,7 +190,7 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
     return chainActive.Tip()->GetBlockHash().GetHex();
 }
 
-void RPCNotifyBlockChange(const uint256 hashBlock)
+void RPCNotifyBlockChange(bool fInitialDownload, const CBlockIndex* pindex);
 {
     CBlockIndex* pindex = nullptr;
     pindex = mapBlockIndex.at(hashBlock);

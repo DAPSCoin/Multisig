@@ -3771,6 +3771,7 @@ bool ActivateBestChain(CValidationState& state, CBlock* pblock, bool fAlreadyChe
             }
             // Note: uiInterface, should switch main signals.
             uiInterface.NotifyBlockTip(hashNewTip);
+			uiInterface.NotifyBlockTip(fInitialDownload, pindexNewTip);
 			GetMainSignals().UpdatedBlockTip(pindexNewTip);
 
             unsigned size = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
