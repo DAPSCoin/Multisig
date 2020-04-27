@@ -5731,6 +5731,9 @@ void static ProcessGetData(CNode* pfrom)
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, int64_t nTimeReceived)
 {
+    CNodeState* state = State(pfrom->GetId());
+    if (state == NULL)
+        return false;
     RandAddSeedPerfmon();
     if (fDebug)
         LogPrintf("received: %s (%u bytes) peer=%d, chainheight=%d\n", SanitizeString(strCommand), vRecv.size(), pfrom->id, chainActive.Height());
@@ -5765,7 +5768,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
         if (pfrom->strSubVer == "/DAPScoin:0.27.5.1/" || pfrom->strSubVer == "/DAPScoin:1.0.0/" || pfrom->strSubVer == "/DAPScoin:1.0.1/" || pfrom->strSubVer == "/DAPS:1.0.1.3/" || pfrom->strSubVer == "/DAPS:1.0.2/" || pfrom->strSubVer == "/DAPS:1.0.3.4/") {
                 // disconnect from peers other than these sub versions
-                LogPrintf("partner %s using obsolete version %s; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->strSubVer.c_str());
+                LogPrintf("partner %s using obsolete version %s; banning and disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->strSubVer.c_str());
+                state->fShouldBan = true;
                 pfrom->fDisconnect = true;
                 return false;
         }
