@@ -831,7 +831,7 @@ void CoinControlDialog::updateView()
             // amount
             itemOutput->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, model->getCWallet()->getCTxOutValue(*out.tx, out.tx->vout[out.i])));
             itemOutput->setToolTip(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, model->getCWallet()->getCTxOutValue(*out.tx, out.tx->vout[out.i])));
-            itemOutput->setData(COLUMN_AMOUNT, Qt::UserRole, QVariant((qlonglong) QString::number(model->getCWallet()->getCTxOutValue(*out.tx, out.tx->vout[out.i]))); // padding so that sorting works correctly
+            itemOutput->setData(COLUMN_AMOUNT, Qt::UserRole, QVariant((qlonglong) model->getCWallet()->getCTxOutValue(*out.tx, out.tx->vout[out.i]))); // padding so that sorting works correctly
 
             // date
             itemOutput->setText(COLUMN_DATE, GUIUtil::dateTimeStr(out.tx->GetTxTime()));

@@ -53,10 +53,10 @@ OptionsPage::OptionsPage(QWidget* parent) : QDialog(parent, Qt::WindowSystemMenu
     connect(ui->lineEditNewPassRepeat, SIGNAL(textChanged(const QString &)), this, SLOT(validateNewPassRepeat()));
     connect(ui->lineEditOldPass, SIGNAL(textChanged(const QString &)), this, SLOT(onOldPassChanged()));
 
-    ui->line_2->setVisible(false);
+    ui->line_1->setVisible(false);
     ui->lineEditWithhold->setVisible(false);
     ui->labelStaking->setVisible(false);
-    ui->label_2->setVisible(false);
+    ui->label_3->setVisible(false);
     ui->pushButtonSave->setVisible(false);
     ui->pushButtonDisable->setVisible(false);
     ui->addNewFunds->setVisible(false);

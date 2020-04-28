@@ -187,7 +187,7 @@ void AskPassphraseDialog::accept()
             QDialog::accept(); // Success
         }
         break;
-    case ChangePass:
+    case Mode::ChangePass:
         if (newpass1 == newpass2) {
             if (model->changePassphrase(oldpass, newpass1)) {
                 QMessageBox msgBox;
