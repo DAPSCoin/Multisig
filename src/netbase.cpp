@@ -710,7 +710,7 @@ CNetAddr::CNetAddr(const struct in6_addr& ipv6Addr)
     SetRaw(NET_IPV6, (const uint8_t*)&ipv6Addr);
 }
 
-CNetAddr::CNetAddr(const char* pszIp,)
+CNetAddr::CNetAddr(const char* pszIp)
 {
     Init();
     std::vector<CNetAddr> vIP;

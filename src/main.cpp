@@ -2023,7 +2023,7 @@ bool AcceptableInputs(CTxMemPool& pool, CValidationState& state, const CTransact
         CAmount nFees = tx.nTxFee;
         double dPriority = GetPriority(tx, chainHeight);
 
-        CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainHeight));
+        CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainHeight);
         unsigned int nSize = entry.GetTxSize();
 
         // Don't accept it if it can't get into a block
