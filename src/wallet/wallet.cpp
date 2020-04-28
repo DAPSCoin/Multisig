@@ -2192,7 +2192,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
 
 bool CWallet::AvailableCoins(const uint256 wtxid, const CWalletTx* pcoin, vector<COutput>& vCoins, int cannotSpend, bool fOnlyConfirmed, const CCoinControl* coinControl, bool fIncludeZeroValue, AvailableCoinsType nCoinType, bool fUseIX)
 {
-    if (IsLocked()) return;	
+    if (IsLocked()) return false;	
     cannotSpend = 0;
     {
         if (!CheckFinalTx(*pcoin))
