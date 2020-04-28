@@ -346,9 +346,6 @@ void OverviewPage::showBlockSync(bool fShow)
 
 void OverviewPage::showBlockCurrentHeight(int count)
 {
-    TRY_LOCK(cs_main, lockMain);
-    if (!lockMain)
-        return;
 	ui->labelBlockCurrent->setText(QString::number(count));
 }
 
