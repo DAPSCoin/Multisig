@@ -2021,7 +2021,7 @@ bool AcceptableInputs(CTxMemPool& pool, CValidationState& state, const CTransact
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = tx.nTxFee;
-        double dPriority = GetPriority(tx, chainHeight));
+        double dPriority = GetPriority(tx, chainHeight);
 
         CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainHeight));
         unsigned int nSize = entry.GetTxSize();

@@ -140,7 +140,8 @@ private:
         EnterCritical(pszName, pszFile, nLine, (void*)(Base::mutex()), true);
         Base::try_lock();
         if (!Base::owns_lock())
-        return Base::owns_lock():
+            LeaveCritical();
+        return Base::owns_lock();
     }
 
 public:
