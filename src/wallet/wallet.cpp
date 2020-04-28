@@ -5951,7 +5951,7 @@ CAmount CWallet::GetDebit(const CTransaction& tx, const isminefilter& filter) co
 {
     CAmount nDebit = 0;
     for (const CTxIn& txin : tx.vin) {
-        nDebit += GetDebit(txin, filter);
+        nDebit += GetDebit(tx, txin, filter);
     }
     return nDebit;
 }
@@ -6077,7 +6077,7 @@ bool CWalletTx::IsTrusted() const
     // Trusted if all inputs are from us and are in the mempool:
     for (const CTxIn& txin : vin) {
         // Transactions not sent by us: not trusted
-        COutPoint prevout = pwallet->findMyOutPoint(txin);
+        COutPoint prevout = pwallet->findMyOutPoint(*this, txin);
         const CWalletTx* parent = pwallet->GetWalletTx(prevout.hash);
         if (parent == NULL)
             return false;

@@ -596,7 +596,7 @@ void handler(int sig)
 
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char* argv[])
-{
+}
 #ifndef Q_OS_WIN
 #ifdef DEBUG_BACKTRACE
     signal(SIGSEGV, handler); // install our handler
