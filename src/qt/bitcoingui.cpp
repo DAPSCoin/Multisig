@@ -1117,7 +1117,7 @@ void BitcoinGUI::setNumBlocks(int count)
     }
     if (count == 0) {
         blockCount->setText(tr("Loading Blocks..."));
-    } else if (IsInitialBlockDownload()) {
+    } else if (clientModel->inInitialBlockDownload()) {
         blockCount->setText(tr("Syncing Blocks..."));
     } else {
         blockCount->setText(tr("%n Blocks", "", count));
