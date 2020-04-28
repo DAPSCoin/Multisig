@@ -547,10 +547,12 @@ void BitcoinApplication::initializeResult(int retval)
                 dlg.setWindowTitle("Encrypt Wallet");
                 dlg.setStyleSheet(GUIUtil::loadStyleSheet());
                 dlg.exec();
+				
                 Q_EMIT requestedRegisterNodeSignal();
                 walletModel->updateStatus();
             }
         }
+	}
 #endif
     } else {
         quit(); // Exit main loop
