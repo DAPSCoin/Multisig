@@ -865,7 +865,7 @@ void InitParameterInteraction()
     }
 
     if (!GetBoolArg("-enableswifttx", fEnableSwiftTX)) {
-        if (SoftSetArg("-swifttxdepth, "0"))
+        if (SoftSetArg("-swifttxdepth", "0"))
             LogPrintf("%s : parameter interaction: -enableswifttx=false -> setting -nSwiftTXDepth=0\n", __func__);
     }
 }
