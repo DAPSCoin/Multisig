@@ -6649,7 +6649,7 @@ bool ProcessMessages(CNode* pfrom)
             } else {
                 PrintExceptionContinue(&e, "ProcessMessages()");
             }
-        } catch (boost::thread_interrupted) {
+        } catch (boost::thread_interrupted&) {
             throw;
         } catch (std::exception& e) {
             PrintExceptionContinue(&e, "ProcessMessages()");
