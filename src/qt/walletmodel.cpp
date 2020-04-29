@@ -164,7 +164,7 @@ void WalletModel::pollBalanceChanged()
         fForceCheckBalanceChanged = false;
 
         // Balance and number of transactions might have changed
-        cachedNumBlocks = chainHeight();
+        cachedNumBlocks = chainHeight;
 
         checkBalanceChanged();
         if (transactionTableModel) {

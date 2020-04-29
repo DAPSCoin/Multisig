@@ -155,7 +155,6 @@ public:
             QList<TransactionRecord> records = TransactionRecord::decomposeTransaction(wallet, tx);
             cachedWallet.append(records);
             }
-        }
 		
 		return cachedWallet;
     }
@@ -727,7 +726,7 @@ void TransactionTableModel::updateDisplayUnit()
 struct TransactionNotification {
 public:
     TransactionNotification() {}
-    TransactionNotification(uint256 hash, ChangeType status) : hash(hash), status(status), showTransaction(showTransaction) {}
+    TransactionNotification(uint256 hash, ChangeType status) : hash(hash), status(status) {}
 
     void invoke(QObject* ttm)
     {
