@@ -6,7 +6,6 @@
 #define BITCOIN_QT_WALLETVIEW_H
 
 #include "amount.h"
-#include "askpassphrasedialog.h"
 #include "masternodelist.h"
 
 #include <QStackedWidget>
@@ -114,7 +113,7 @@ public Q_SLOTS:
     /** Change encrypted wallet passphrase */
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
-    void unlockWallet(AskPassphraseDialog::Context context);
+    void unlockWallet();
     /** Lock wallet */
     void lockWallet();
     /** Toggle wallet lock state */

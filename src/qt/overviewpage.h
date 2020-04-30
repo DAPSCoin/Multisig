@@ -96,6 +96,8 @@ private Q_SLOTS:
     void updateAlerts(const QString& warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void on_lockUnlock();
+    void unlockDialogIsFinished(int result);
+    void lockDialogIsFinished(int result);
     void updateLockStatus(int status);
 };
 
