@@ -560,7 +560,7 @@ void BitcoinApplication::initializeResult(int retval)
         }
 	}
 #endif
-    } else {
+     else {
         quit(); // Exit main loop
     }
 }

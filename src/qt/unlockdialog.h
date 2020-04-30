@@ -20,7 +20,7 @@ public:
 
     void setModel(WalletModel* model);
 
-private slots:
+private Q_SLOTS:
     void on_unlock();
 
 private:
