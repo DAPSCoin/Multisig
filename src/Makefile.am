@@ -370,7 +370,7 @@ libbitcoin_util_a_SOURCES = \
   uint256.cpp \
   util.cpp \
   utilstrencodings.cpp \
-  util/threadnames.h \
+  util/threadnames.cpp \
   utilmoneystr.cpp \
   utiltime.cpp \
   $(BITCOIN_CORE_H)
